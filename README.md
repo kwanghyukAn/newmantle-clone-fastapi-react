@@ -58,6 +58,16 @@ uvicorn app.main:app --host 0.0.0.0 --port 8000
 
 이 상태에서는 프런트와 API를 모두 `http://서버IP:8000` 하나로 접근합니다. `frontend/dist`가 존재하면 FastAPI가 `/`와 `/assets/*`를 직접 서빙합니다.
 
+## PWA installability
+
+이 프런트는 `manifest.webmanifest`와 `service worker`를 포함하므로 PWA 설치형으로 동작할 수 있습니다.
+
+중요:
+
+- `localhost`에서는 설치 테스트가 가능합니다.
+- 다른 PC나 모바일에서 실제로 `설치` 버튼이 보이게 하려면 보통 `HTTPS`가 필요합니다.
+- 단순 `http://서버IP:8000` 주소는 대부분의 브라우저에서 설치형 조건을 만족하지 못합니다.
+
 ## Access from another PC
 
 If the server PC IP is `192.168.0.10`, open:

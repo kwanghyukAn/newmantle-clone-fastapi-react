@@ -146,6 +146,25 @@ uvicorn app.main:app --host 0.0.0.0 --port 8000
 
 현재 `backend/app/main.py`는 `frontend/dist/index.html`과 `frontend/dist/assets/*`가 존재하면 이를 직접 서빙합니다. 그래서 운영 환경에서는 프런트와 API가 같은 origin으로 붙고, CORS를 별도로 의식할 일이 크게 줄어듭니다.
 
+## PWA 설치 관련
+
+현재 프런트는 PWA 기본 구성이 포함되어 있습니다.
+
+- `manifest.webmanifest`
+- `service worker`
+- 앱 아이콘
+
+하지만 중요한 제약이 있습니다.
+
+- 개발용 `localhost`에서는 설치 테스트가 가능합니다.
+- 다른 기기에서 `앱처럼 설치`하려면 일반적으로 `HTTPS`가 필요합니다.
+- 따라서 사내망에서 여러 사람이 `http://서버IP:8000`으로만 접속하는 경우, 브라우저에 따라 설치 버튼이 아예 안 보일 수 있습니다.
+
+즉:
+
+1. 여러 사람이 같은 서버에 접속하는 구조는 PWA가 맞습니다.
+2. 실제 설치 UX까지 원하면 서버 앞단에 HTTPS를 붙이는 것이 필요합니다.
+
 ## 데이터 관련 설명
 
 ### 왜 fastText를 선택했는가
