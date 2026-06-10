@@ -39,133 +39,79 @@ export function RoomBoard({ room, currentPlayerId }: Props) {
     });
 
   return (
-    <div className="room-grid">
-      <section className="sheet-block">
-        <div className="sheet-block-columns">
-          <span>J</span>
-          <span>K</span>
-          <span>L</span>
+    <>
+      <section className="worksheet-region worksheet-room-hints">
+        <div className="worksheet-region-head">
+          <h3>상위권 힌트</h3>
+          <span>유사도 컷라인</span>
         </div>
-        <div className="sheet-block-body">
-          <div className="sheet-row">
-            <div className="sheet-row-number">4</div>
-            <div className="sheet-row-cells sheet-title-row">
-              <div className="panel-header panel-header-tight">
-                <h3>상위권 힌트</h3>
-                <span>유사도 컷라인</span>
-              </div>
-            </div>
+        <div className="diagnostics-grid">
+          <div className="stat-chip">
+            <span>1위 유사도</span>
+            <strong>{room.hint_metrics.rank_1_similarity.toFixed(2)}</strong>
           </div>
-          <div className="sheet-row">
-            <div className="sheet-row-number">5</div>
-            <div className="sheet-row-cells">
-              <div className="diagnostics-grid">
-                <div className="stat-chip">
-                  <span>1위 유사도</span>
-                  <strong>{room.hint_metrics.rank_1_similarity.toFixed(2)}</strong>
-                </div>
-                <div className="stat-chip">
-                  <span>10위 컷</span>
-                  <strong>{room.hint_metrics.top_10_cutoff_similarity.toFixed(2)}</strong>
-                </div>
-                <div className="stat-chip">
-                  <span>100위 컷</span>
-                  <strong>{room.hint_metrics.top_100_cutoff_similarity.toFixed(2)}</strong>
-                </div>
-              </div>
-            </div>
+          <div className="stat-chip">
+            <span>10위 컷</span>
+            <strong>{room.hint_metrics.top_10_cutoff_similarity.toFixed(2)}</strong>
+          </div>
+          <div className="stat-chip">
+            <span>100위 컷</span>
+            <strong>{room.hint_metrics.top_100_cutoff_similarity.toFixed(2)}</strong>
           </div>
         </div>
       </section>
-      <section className="sheet-block">
-        <div className="sheet-block-columns">
-          <span>A</span>
-          <span>B</span>
-          <span>C</span>
-          <span>D</span>
-          <span>E</span>
+      <section className="worksheet-region worksheet-room-members">
+        <div className="worksheet-region-head">
+          <h3>참가자 순위</h3>
+          <span>실시간 보드</span>
         </div>
-        <div className="sheet-block-body">
-          <div className="sheet-row">
-            <div className="sheet-row-number">5</div>
-            <div className="sheet-row-cells sheet-title-row">
-              <div className="panel-header panel-header-tight">
-                <h3>참가자 순위</h3>
-                <span>실시간 보드</span>
-              </div>
-            </div>
-          </div>
-          <div className="sheet-row">
-            <div className="sheet-row-number">6</div>
-            <div className="sheet-row-cells sheet-table-cell">
-              <table className="guess-table">
-                <thead>
-                  <tr>
-                    <th>상태</th>
-                    <th>이름</th>
-                    <th>시도</th>
-                    <th>최고 순위</th>
-                    <th>최고 유사도</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {room.members.map((member) => (
-                    <tr key={member.player_id} className={member.solved ? "guess-row guess-row-correct" : "guess-row"}>
-                      <td>{member.solved ? "완료" : "진행중"}</td>
-                      <td className="guess-word">{member.name}</td>
-                      <td>{member.attempts}</td>
-                      <td>{formatRank(member.best_rank, member.solved)}</td>
-                      <td>{member.best_similarity?.toFixed(2) ?? "-"}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
+        <table className="guess-table">
+          <thead>
+            <tr>
+              <th>상태</th>
+              <th>이름</th>
+              <th>시도</th>
+              <th>최고 순위</th>
+              <th>최고 유사도</th>
+            </tr>
+          </thead>
+          <tbody>
+            {room.members.map((member) => (
+              <tr key={member.player_id} className={member.solved ? "guess-row guess-row-correct" : "guess-row"}>
+                <td>{member.solved ? "완료" : "진행중"}</td>
+                <td className="guess-word">{member.name}</td>
+                <td>{member.attempts}</td>
+                <td>{formatRank(member.best_rank, member.solved)}</td>
+                <td>{member.best_similarity?.toFixed(2) ?? "-"}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </section>
-      <section className="sheet-block">
-        <div className="sheet-block-columns">
-          <span>F</span>
-          <span>G</span>
-          <span>H</span>
-          <span>I</span>
+      <section className="worksheet-region worksheet-room-feed">
+        <div className="worksheet-region-head">
+          <h3>최근 추측</h3>
+          <span>내 최신 추측 우선</span>
         </div>
-        <div className="sheet-block-body">
-          <div className="sheet-row">
-            <div className="sheet-row-number">5</div>
-            <div className="sheet-row-cells sheet-title-row">
-              <div className="panel-header panel-header-tight">
-                <h3>최근 추측</h3>
-                <span>내 최신 추측 우선</span>
-              </div>
-            </div>
-          </div>
-          <div className="sheet-row">
-            <div className="sheet-row-number">6</div>
-            <div className="sheet-row-cells sheet-table-cell">
-              <ul className="guess-feed">
-                {myLatestGuess ? (
-                  <li key={`${myLatestGuess.player_id}-${myLatestGuess.created_at}`} className="guess-feed-highlight">
-                    <strong>내 최근 추측</strong>
-                    <span className="guess-word">{myLatestGuess.word}</span>
-                    <span>{formatRank(myLatestGuess.rank, myLatestGuess.correct)}</span>
-                    <span>{myLatestGuess.similarity.toFixed(2)}</span>
-                  </li>
-                ) : null}
-                {rankedFeed.map((guess) => (
-                  <li key={`${guess.player_id}-${guess.created_at}`}>
-                    <strong>{guess.name}</strong>
-                    <span className="guess-word">{guess.word}</span>
-                    <span>{formatRank(guess.rank, guess.correct)}</span>
-                    <span>{guess.similarity.toFixed(2)}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
-        </div>
+        <ul className="guess-feed">
+          {myLatestGuess ? (
+            <li key={`${myLatestGuess.player_id}-${myLatestGuess.created_at}`} className="guess-feed-highlight">
+              <strong>내 최근 추측</strong>
+              <span className="guess-word">{myLatestGuess.word}</span>
+              <span>{formatRank(myLatestGuess.rank, myLatestGuess.correct)}</span>
+              <span>{myLatestGuess.similarity.toFixed(2)}</span>
+            </li>
+          ) : null}
+          {rankedFeed.map((guess) => (
+            <li key={`${guess.player_id}-${guess.created_at}`}>
+              <strong>{guess.name}</strong>
+              <span className="guess-word">{guess.word}</span>
+              <span>{formatRank(guess.rank, guess.correct)}</span>
+              <span>{guess.similarity.toFixed(2)}</span>
+            </li>
+          ))}
+        </ul>
       </section>
-    </div>
+    </>
   );
 }

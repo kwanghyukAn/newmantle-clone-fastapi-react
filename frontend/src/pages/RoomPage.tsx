@@ -94,90 +94,68 @@ export function RoomPage({ playerName }: Props) {
   }
 
   return (
-    <section className="stack">
-      <div className="sheet-block accent-sheet-block">
-        <div className="sheet-block-columns">
-          <span>A</span>
-          <span>B</span>
-          <span>C</span>
-          <span>D</span>
-        </div>
-        <div className="sheet-block-body">
-          <div className="sheet-row">
-            <div className="sheet-row-number">1</div>
-            <div className="sheet-row-cells sheet-title-row">
-              <div>
-                <p className="eyebrow">Room Match</p>
-                <h2>방마다 별도 정답으로 경쟁</h2>
-              </div>
-              <div className="stat-strip">
-                <div className="stat-chip">
-                  <span>이름</span>
-                  <strong>{playerName}</strong>
-                </div>
-                <div className="stat-chip">
-                  <span>현재 방</span>
-                  <strong>{roomId ?? "-"}</strong>
-                </div>
-                <div className="stat-chip">
-                  <span>참가자</span>
-                  <strong>{room?.members.length ?? 0}</strong>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div className="sheet-row">
-            <div className="sheet-row-number">2</div>
-            <div className="sheet-row-cells">
-              <p className="hero-copy">
-                모두가 같은 정답을 풀지만, 보이는 것은 누가 얼마나 가까워졌는지에 대한 상태와 순위입니다.
-              </p>
-            </div>
-          </div>
-          <div className="sheet-row">
-            <div className="sheet-row-number">3</div>
-            <div className="sheet-row-cells">
-              <div className="room-actions">
-                <button type="button" onClick={createRoom}>
-                  방 만들기
-                </button>
-                <form className="inline-form" onSubmit={joinRoom}>
-                  <input
-                    value={roomIdInput}
-                    onChange={(event) => setRoomIdInput(event.target.value.toUpperCase())}
-                    placeholder="방 코드"
-                  />
-                  <button type="submit" disabled={alreadyJoinedCurrentRoom}>
-                    {alreadyJoinedCurrentRoom ? "입장됨" : "입장"}
-                  </button>
-                </form>
-              </div>
-            </div>
-          </div>
-          <div className="sheet-row">
-            <div className="sheet-row-number">4</div>
-            <div className="sheet-row-cells">
-              {roomId ? <p className="meta-text">방 코드 `{roomId}` 를 공유해서 다른 사람을 입장시키면 됩니다.</p> : null}
-              {room ? (
-                <p className="meta-text">
-                  순위는 1000위 미만만 숫자로 표시합니다. 최근 추측 패널의 첫 줄은 현재 사용자 기준 최신 입력입니다.
-                </p>
-              ) : null}
-              {roomId && playerId ? (
-                <form className="guess-form" onSubmit={submitGuess}>
-                  <input
-                    value={word}
-                    onChange={(event) => setWord(event.target.value)}
-                    placeholder="이 방의 정답 단어 추측"
-                  />
-                  <button type="submit">추측</button>
-                </form>
-              ) : null}
-              {error ? <p className="error-text">{error}</p> : null}
-            </div>
+    <section className="worksheet-grid worksheet-grid-room">
+      <section className="worksheet-region worksheet-room-title">
+        <div className="worksheet-region-head">
+          <div>
+            <p className="eyebrow">Room Match</p>
+            <h2>방마다 별도 정답으로 경쟁</h2>
           </div>
         </div>
-      </div>
+        <p className="hero-copy">보이는 것은 누가 얼마나 가까워졌는지에 대한 상태와 순위입니다.</p>
+      </section>
+
+      <section className="worksheet-region worksheet-room-summary">
+        <div className="stat-strip">
+          <div className="stat-chip">
+            <span>이름</span>
+            <strong>{playerName}</strong>
+          </div>
+          <div className="stat-chip">
+            <span>현재 방</span>
+            <strong>{roomId ?? "-"}</strong>
+          </div>
+          <div className="stat-chip">
+            <span>참가자</span>
+            <strong>{room?.members.length ?? 0}</strong>
+          </div>
+        </div>
+      </section>
+
+      <section className="worksheet-region worksheet-room-join">
+        <div className="room-actions">
+          <button type="button" onClick={createRoom}>
+            방 만들기
+          </button>
+          <form className="inline-form" onSubmit={joinRoom}>
+            <input
+              value={roomIdInput}
+              onChange={(event) => setRoomIdInput(event.target.value.toUpperCase())}
+              placeholder="방 코드"
+            />
+            <button type="submit" disabled={alreadyJoinedCurrentRoom}>
+              {alreadyJoinedCurrentRoom ? "입장됨" : "입장"}
+            </button>
+          </form>
+        </div>
+      </section>
+
+      <section className="worksheet-region worksheet-room-meta">
+        {roomId ? <p className="meta-text">방 코드 `{roomId}` 를 공유해서 다른 사람을 입장시키면 됩니다.</p> : null}
+        {room ? (
+          <p className="meta-text">
+            순위는 1000위 미만만 숫자로 표시합니다. 최근 추측 패널의 첫 줄은 현재 사용자 기준 최신 입력입니다.
+          </p>
+        ) : null}
+        {roomId && playerId ? (
+          <form className="guess-form" onSubmit={submitGuess}>
+            <input value={word} onChange={(event) => setWord(event.target.value)} placeholder="이 방의 정답 단어 추측" />
+            <button type="submit">추측</button>
+          </form>
+        ) : null}
+        {error ? <p className="error-text">{error}</p> : null}
+      </section>
+
       {room ? <RoomBoard room={room} currentPlayerId={playerId} /> : null}
     </section>
   );
