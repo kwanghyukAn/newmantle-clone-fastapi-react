@@ -30,6 +30,10 @@ class RoomService:
         with self._lock:
             if not self._repository.room_exists(room_id):
                 raise KeyError("room-not-found")
+            existing_player_id = self._repository.find_room_player_id_by_name(room_id, name)
+            if existing_player_id is not None:
+                self._repository.touch_room_player(existing_player_id)
+                return existing_player_id
             player_id = uuid4().hex
             self._repository.add_room_player(room_id, player_id, name)
             return player_id

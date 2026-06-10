@@ -14,6 +14,8 @@ export function RoomPage({ playerName }: Props) {
   const [room, setRoom] = useState<RoomState | null>(null);
   const [word, setWord] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const normalizedRoomIdInput = roomIdInput.toUpperCase();
+  const alreadyJoinedCurrentRoom = Boolean(roomId && playerId && normalizedRoomIdInput === roomId);
 
   useEffect(() => {
     if (!roomId) {
@@ -64,9 +66,12 @@ export function RoomPage({ playerName }: Props) {
 
   async function joinRoom(event: FormEvent) {
     event.preventDefault();
+    if (alreadyJoinedCurrentRoom) {
+      return;
+    }
     setError(null);
     try {
-      const joined = await api.joinRoom(roomIdInput.toUpperCase(), playerName);
+      const joined = await api.joinRoom(normalizedRoomIdInput, playerName);
       setRoomId(joined.room_id);
       setPlayerId(joined.player_id);
     } catch (reason) {
@@ -142,7 +147,9 @@ export function RoomPage({ playerName }: Props) {
                     onChange={(event) => setRoomIdInput(event.target.value)}
                     placeholder="방 코드"
                   />
-                  <button type="submit">입장</button>
+                  <button type="submit" disabled={alreadyJoinedCurrentRoom}>
+                    {alreadyJoinedCurrentRoom ? "입장됨" : "입장"}
+                  </button>
                 </form>
               </div>
             </div>

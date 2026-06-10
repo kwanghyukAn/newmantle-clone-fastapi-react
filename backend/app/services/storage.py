@@ -238,6 +238,32 @@ class SQLiteRepository:
                 (player_id, room_id, name, now),
             )
 
+    def find_room_player_id_by_name(self, room_id: str, name: str) -> str | None:
+        normalized = name.strip()
+        with self.connection() as conn:
+            row = conn.execute(
+                """
+                SELECT player_id
+                FROM room_players
+                WHERE room_id = ? AND TRIM(name) = ?
+                ORDER BY last_active_at DESC
+                LIMIT 1
+                """,
+                (room_id, normalized),
+            ).fetchone()
+        return None if row is None else str(row["player_id"])
+
+    def touch_room_player(self, player_id: str) -> None:
+        with self.connection() as conn:
+            conn.execute(
+                """
+                UPDATE room_players
+                SET last_active_at = ?
+                WHERE player_id = ?
+                """,
+                (datetime.now(timezone.utc).isoformat(), player_id),
+            )
+
     def room_exists(self, room_id: str) -> bool:
         with self.connection() as conn:
             row = conn.execute("SELECT 1 FROM rooms WHERE room_id = ?", (room_id,)).fetchone()
