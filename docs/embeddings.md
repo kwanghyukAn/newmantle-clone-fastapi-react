@@ -49,7 +49,9 @@ cd /path/to/workspace
 python3 -m venv backend/.venv
 source backend/.venv/bin/activate
 pip install -r backend/requirements.txt
-python3 backend/scripts/prepare_fasttext_ko.py
+python3 backend/scripts/prepare_fasttext_ko.py \
+  --answer-whitelist backend/app/data/answer_whitelist_seed.txt \
+  --answer-blacklist backend/app/data/answer_blacklist_seed.txt
 ```
 
 This will:
@@ -60,6 +62,8 @@ This will:
 4. write app-ready files into `backend/app/data/`
 
 If a previous download was interrupted, the preparer now checks the cached file size and automatically restarts the download when the server rejects the stored byte range with `416 Requested Range Not Satisfied`.
+
+The preparer now resolves its default cache/output paths from the repository root, so it behaves consistently even when launched from a different working directory.
 
 Generated files:
 
@@ -72,7 +76,7 @@ Generated files:
 
 ```bash
 python3 backend/scripts/prepare_fasttext_ko.py --max-vocab 30000
-python3 backend/scripts/prepare_fasttext_ko.py --noun-lexicon backend/app/data/noun_lexicon_seed.txt
+python3 backend/scripts/prepare_fasttext_ko.py --noun-lexicon /path/to/full_korean_noun_lexicon.txt
 ```
 
 The default is `60000` words. Lower values reduce disk/memory cost; higher values improve coverage.

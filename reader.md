@@ -61,7 +61,6 @@ pip install -r requirements.txt
 ```bash
 source backend/.venv/bin/activate
 python3 backend/scripts/prepare_fasttext_ko.py \
-  --noun-lexicon backend/app/data/noun_lexicon_seed.txt \
   --answer-whitelist backend/app/data/answer_whitelist_seed.txt \
   --answer-blacklist backend/app/data/answer_blacklist_seed.txt
 ```
@@ -73,6 +72,12 @@ python3 backend/scripts/prepare_fasttext_ko.py \
 3. 선택적으로 명사 사전과 교차
 4. 정답 후보 화이트리스트/블랙리스트 적용
 5. 앱이 읽을 수 있는 압축 벡터 파일 생성
+
+주의:
+
+- 기본 운영 명령에서는 `noun_lexicon_seed.txt`를 넣지 않는 편이 맞습니다.
+- 그 파일은 너무 작아서 허용 추측 단어 풀이 지나치게 줄어듭니다.
+- `--noun-lexicon`은 더 큰 실제 명사 사전이 생겼을 때만 쓰는 옵션으로 보는 게 맞습니다.
 
 생성 결과:
 

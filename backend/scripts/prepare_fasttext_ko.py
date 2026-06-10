@@ -12,6 +12,9 @@ import numpy as np
 
 
 FASTTEXT_KO_VEC_URL = "https://dl.fbaipublicfiles.com/fasttext/vectors-crawl/cc.ko.300.vec.gz"
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+DEFAULT_CACHE_PATH = PROJECT_ROOT / "backend" / ".cache" / "cc.ko.300.vec.gz"
+DEFAULT_OUTPUT_DIR = PROJECT_ROOT / "backend" / "app" / "data"
 JOSA_ENDINGS = (
     "은",
     "는",
@@ -43,12 +46,12 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument(
         "--cache-path",
-        default="backend/.cache/cc.ko.300.vec.gz",
+        default=str(DEFAULT_CACHE_PATH),
         help="Path to store the downloaded vec.gz file.",
     )
     parser.add_argument(
         "--output-dir",
-        default="backend/app/data",
+        default=str(DEFAULT_OUTPUT_DIR),
         help="Directory where app-ready data files will be written.",
     )
     parser.add_argument(
@@ -126,6 +129,15 @@ def load_word_list(path: str) -> list[str]:
         for line in list_path.read_text(encoding="utf-8").splitlines()
         if line.strip() and is_hangul_word(line.strip())
     ]
+
+
+def resolve_optional_path(path: str) -> str:
+    if not path:
+        return path
+    resolved = Path(path)
+    if not resolved.is_absolute():
+        resolved = PROJECT_ROOT / resolved
+    return str(resolved)
 
 
 def get_remote_file_size(url: str) -> int | None:
@@ -270,9 +282,12 @@ def main() -> None:
     args = parse_args()
     cache_path = Path(args.cache_path)
     output_dir = Path(args.output_dir)
-    noun_lexicon = load_noun_lexicon(args.noun_lexicon)
-    answer_whitelist = load_word_list(args.answer_whitelist)
-    answer_blacklist = set(load_word_list(args.answer_blacklist))
+    noun_lexicon_path = resolve_optional_path(args.noun_lexicon)
+    answer_whitelist_path = resolve_optional_path(args.answer_whitelist)
+    answer_blacklist_path = resolve_optional_path(args.answer_blacklist)
+    noun_lexicon = load_noun_lexicon(noun_lexicon_path)
+    answer_whitelist = load_word_list(answer_whitelist_path)
+    answer_blacklist = set(load_word_list(answer_blacklist_path))
     print(f"downloading official fastText Korean vectors to {cache_path}")
     download_with_resume(args.download_url, cache_path)
     print(f"converting to filtered app dataset in {output_dir}")
@@ -285,7 +300,7 @@ def main() -> None:
         answer_whitelist,
         answer_blacklist,
     )
-    print("done")
+    print(f"done: wrote vectors to {output_dir}")
 
 
 if __name__ == "__main__":

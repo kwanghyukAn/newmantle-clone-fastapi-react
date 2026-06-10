@@ -17,7 +17,6 @@ python3 -m venv backend/.venv
 source backend/.venv/bin/activate
 pip install -r backend/requirements.txt
 python3 backend/scripts/prepare_fasttext_ko.py \
-  --noun-lexicon backend/app/data/noun_lexicon_seed.txt \
   --answer-whitelist backend/app/data/answer_whitelist_seed.txt \
   --answer-blacklist backend/app/data/answer_blacklist_seed.txt
 ```
@@ -25,6 +24,8 @@ python3 backend/scripts/prepare_fasttext_ko.py \
 This downloads the official fastText Korean `cc.ko.300.vec.gz` archive, filters noun-like Hangul words, and generates app-ready files in `backend/app/data/`.
 
 If the download was interrupted earlier, the script now auto-recovers from `416 Requested Range Not Satisfied` by resetting the stale cache and retrying.
+
+`--noun-lexicon` is optional. For real gameplay coverage, do not use the tiny seed lexicon as the default filter because it sharply reduces the allowed guess pool.
 
 ## Run frontend
 
