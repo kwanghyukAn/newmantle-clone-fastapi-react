@@ -1,0 +1,263 @@
+:root {
+  color: #182032;
+  background:
+    radial-gradient(circle at top left, rgba(255, 126, 95, 0.25), transparent 25rem),
+    radial-gradient(circle at 80% 10%, rgba(61, 90, 128, 0.16), transparent 24rem),
+    linear-gradient(180deg, #fffaf3 0%, #f6efe5 100%);
+  font-family: "Pretendard Variable", "Segoe UI", sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+}
+
+button,
+input {
+  font: inherit;
+}
+
+.app-shell {
+  min-height: 100vh;
+  padding: 2rem;
+  max-width: 1240px;
+  margin: 0 auto;
+}
+
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: flex-start;
+  margin-bottom: 2.5rem;
+}
+
+.topbar h1,
+.hero-card h2,
+.panel-header h3 {
+  margin: 0;
+  font-family: Georgia, "Times New Roman", serif;
+  letter-spacing: -0.02em;
+}
+
+.topbar-controls {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.topbar-controls input,
+.guess-form input,
+.inline-form input {
+  border: 1px solid #d4c5b3;
+  background: rgba(255, 255, 255, 0.92);
+  border-radius: 999px;
+  padding: 0.75rem 1rem;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+
+.tabset,
+.room-actions,
+.guess-form,
+.inline-form {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.tabset button,
+.room-actions button,
+.guess-form button,
+.inline-form button {
+  border: 0;
+  border-radius: 999px;
+  padding: 0.8rem 1.1rem;
+  background: linear-gradient(135deg, #1d3557, #2a4d69);
+  color: white;
+  cursor: pointer;
+  box-shadow: 0 0.6rem 1.2rem rgba(29, 53, 87, 0.16);
+}
+
+.tabset button.active {
+  background: linear-gradient(135deg, #f28482, #e76f51);
+}
+
+.content,
+.stack {
+  display: grid;
+  gap: 1.25rem;
+}
+
+.hero-card,
+.panel {
+  border: 1px solid rgba(24, 32, 50, 0.08);
+  border-radius: 1.6rem;
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(10px);
+  padding: 1.4rem;
+  box-shadow: 0 1.4rem 3rem rgba(34, 40, 49, 0.08);
+}
+
+.accent-card {
+  background: linear-gradient(180deg, rgba(255, 249, 240, 0.96), rgba(255, 241, 228, 0.9));
+}
+
+.hero-copy,
+.meta-text,
+.eyebrow {
+  color: #5e687d;
+}
+
+.eyebrow {
+  margin: 0 0 0.3rem;
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.8rem;
+}
+
+.brand-block {
+  max-width: 42rem;
+}
+
+.hero-topline {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: flex-start;
+}
+
+.stat-strip {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.stat-chip {
+  min-width: 7rem;
+  padding: 0.75rem 0.9rem;
+  border-radius: 1rem;
+  background: rgba(250, 245, 237, 0.96);
+  border: 1px solid rgba(24, 32, 50, 0.08);
+}
+
+.stat-chip span {
+  display: block;
+  font-size: 0.72rem;
+  color: #7b8395;
+  margin-bottom: 0.2rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.stat-chip strong {
+  font-size: 1rem;
+}
+
+.status-banner {
+  margin-top: 0.75rem;
+  padding: 0.85rem 1rem;
+  border-radius: 1rem;
+  background: rgba(250, 244, 234, 0.95);
+  border: 1px dashed rgba(29, 53, 87, 0.16);
+}
+
+.guess-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.guess-table th,
+.guess-table td {
+  padding: 0.75rem;
+  text-align: left;
+  border-bottom: 1px solid rgba(20, 33, 61, 0.08);
+}
+
+.guess-row-correct {
+  background: rgba(129, 178, 154, 0.12);
+}
+
+.guess-word {
+  font-weight: 700;
+}
+
+.room-grid {
+  display: grid;
+  grid-template-columns: 1.2fr 0.8fr;
+  gap: 1.25rem;
+}
+
+.guess-feed {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 0.7rem;
+}
+
+.guess-feed li {
+  display: grid;
+  grid-template-columns: 1.1fr 1fr 0.7fr 0.8fr;
+  gap: 0.5rem;
+  padding-bottom: 0.7rem;
+  border-bottom: 1px dashed rgba(20, 33, 61, 0.12);
+}
+
+.success-text {
+  color: #136f63;
+  margin: 0;
+}
+
+.error-text {
+  color: #b00020;
+  white-space: pre-wrap;
+  margin: 0;
+}
+
+.hero-card-solo {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.94), rgba(255, 248, 242, 0.9)),
+    rgba(255, 255, 255, 0.88);
+}
+
+.hero-card-room {
+  background:
+    linear-gradient(180deg, rgba(255, 250, 242, 0.98), rgba(255, 242, 231, 0.92)),
+    rgba(255, 255, 255, 0.88);
+}
+
+@media (max-width: 900px) {
+  .app-shell {
+    padding: 1rem;
+  }
+
+  .topbar,
+  .topbar-controls,
+  .hero-topline,
+  .room-grid,
+  .room-actions,
+  .guess-form,
+  .inline-form {
+    grid-template-columns: 1fr;
+    display: grid;
+  }
+
+  .stat-strip {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .guess-feed li {
+    grid-template-columns: 1fr 1fr;
+  }
+}

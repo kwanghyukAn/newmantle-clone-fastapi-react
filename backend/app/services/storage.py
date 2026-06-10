@@ -1,0 +1,279 @@
+from __future__ import annotations
+
+import sqlite3
+from contextlib import contextmanager
+from datetime import UTC, date, datetime
+from pathlib import Path
+from typing import Iterator
+
+from app.models.schemas import GuessResult, RoomGuessView, RoomMemberView
+
+
+class SQLiteRepository:
+    def __init__(self, db_path: Path) -> None:
+        self._db_path = db_path
+
+    @contextmanager
+    def connection(self) -> Iterator[sqlite3.Connection]:
+        conn = sqlite3.connect(self._db_path)
+        conn.row_factory = sqlite3.Row
+        try:
+            yield conn
+            conn.commit()
+        finally:
+            conn.close()
+
+    def init_db(self) -> None:
+        with self.connection() as conn:
+            conn.executescript(
+                """
+                CREATE TABLE IF NOT EXISTS daily_guesses (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    player_name TEXT NOT NULL,
+                    game_date TEXT NOT NULL,
+                    word TEXT NOT NULL,
+                    similarity REAL NOT NULL,
+                    rank_value INTEGER NOT NULL,
+                    correct INTEGER NOT NULL,
+                    attempt INTEGER NOT NULL,
+                    UNIQUE(player_name, game_date, attempt)
+                );
+
+                CREATE TABLE IF NOT EXISTS rooms (
+                    room_id TEXT PRIMARY KEY,
+                    answer_word TEXT NOT NULL,
+                    created_at TEXT NOT NULL
+                );
+
+                CREATE TABLE IF NOT EXISTS room_players (
+                    player_id TEXT PRIMARY KEY,
+                    room_id TEXT NOT NULL,
+                    name TEXT NOT NULL,
+                    solved INTEGER NOT NULL DEFAULT 0,
+                    last_active_at TEXT NOT NULL,
+                    FOREIGN KEY(room_id) REFERENCES rooms(room_id)
+                );
+
+                CREATE TABLE IF NOT EXISTS room_guesses (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    room_id TEXT NOT NULL,
+                    player_id TEXT NOT NULL,
+                    name TEXT NOT NULL,
+                    word TEXT NOT NULL,
+                    similarity REAL NOT NULL,
+                    rank_value INTEGER NOT NULL,
+                    correct INTEGER NOT NULL,
+                    attempt INTEGER NOT NULL,
+                    created_at TEXT NOT NULL,
+                    FOREIGN KEY(room_id) REFERENCES rooms(room_id),
+                    FOREIGN KEY(player_id) REFERENCES room_players(player_id)
+                );
+                """
+            )
+
+    def get_daily_guesses(self, player_name: str | None, game_date: date) -> list[GuessResult]:
+        key = player_name or "anonymous"
+        with self.connection() as conn:
+            rows = conn.execute(
+                """
+                SELECT word, similarity, rank_value, correct, attempt
+                FROM daily_guesses
+                WHERE player_name = ? AND game_date = ?
+                ORDER BY attempt ASC
+                """,
+                (key, game_date.isoformat()),
+            ).fetchall()
+        return [self._guess_from_row(row) for row in rows]
+
+    def save_daily_guess(self, player_name: str | None, game_date: date, guess: GuessResult) -> None:
+        key = player_name or "anonymous"
+        with self.connection() as conn:
+            conn.execute(
+                """
+                INSERT INTO daily_guesses (player_name, game_date, word, similarity, rank_value, correct, attempt)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
+                """,
+                (
+                    key,
+                    game_date.isoformat(),
+                    guess.word,
+                    guess.similarity,
+                    guess.rank,
+                    int(guess.correct),
+                    guess.attempt,
+                ),
+            )
+
+    def create_room(self, room_id: str, answer_word: str, created_at: datetime, player_id: str, host_name: str) -> None:
+        timestamp = created_at.astimezone(UTC).isoformat()
+        with self.connection() as conn:
+            conn.execute(
+                "INSERT INTO rooms (room_id, answer_word, created_at) VALUES (?, ?, ?)",
+                (room_id, answer_word, timestamp),
+            )
+            conn.execute(
+                """
+                INSERT INTO room_players (player_id, room_id, name, solved, last_active_at)
+                VALUES (?, ?, ?, 0, ?)
+                """,
+                (player_id, room_id, host_name, timestamp),
+            )
+
+    def add_room_player(self, room_id: str, player_id: str, name: str) -> None:
+        now = datetime.now(UTC).isoformat()
+        with self.connection() as conn:
+            conn.execute(
+                """
+                INSERT INTO room_players (player_id, room_id, name, solved, last_active_at)
+                VALUES (?, ?, ?, 0, ?)
+                """,
+                (player_id, room_id, name, now),
+            )
+
+    def room_exists(self, room_id: str) -> bool:
+        with self.connection() as conn:
+            row = conn.execute("SELECT 1 FROM rooms WHERE room_id = ?", (room_id,)).fetchone()
+        return row is not None
+
+    def get_room_answer_word(self, room_id: str) -> str | None:
+        with self.connection() as conn:
+            row = conn.execute("SELECT answer_word FROM rooms WHERE room_id = ?", (room_id,)).fetchone()
+        return None if row is None else str(row["answer_word"])
+
+    def get_room_created_at(self, room_id: str) -> datetime | None:
+        with self.connection() as conn:
+            row = conn.execute("SELECT created_at FROM rooms WHERE room_id = ?", (room_id,)).fetchone()
+        return None if row is None else datetime.fromisoformat(str(row["created_at"]))
+
+    def room_player_exists(self, room_id: str, player_id: str) -> bool:
+        with self.connection() as conn:
+            row = conn.execute(
+                "SELECT 1 FROM room_players WHERE room_id = ? AND player_id = ?",
+                (room_id, player_id),
+            ).fetchone()
+        return row is not None
+
+    def get_player_attempt_count(self, room_id: str, player_id: str) -> int:
+        with self.connection() as conn:
+            row = conn.execute(
+                "SELECT COUNT(*) AS count FROM room_guesses WHERE room_id = ? AND player_id = ?",
+                (room_id, player_id),
+            ).fetchone()
+        return int(row["count"])
+
+    def get_player_name(self, player_id: str) -> str | None:
+        with self.connection() as conn:
+            row = conn.execute(
+                "SELECT name FROM room_players WHERE player_id = ?",
+                (player_id,),
+            ).fetchone()
+        return None if row is None else str(row["name"])
+
+    def save_room_guess(self, room_id: str, player_id: str, player_name: str, guess: GuessResult) -> datetime:
+        created_at = datetime.now(UTC)
+        with self.connection() as conn:
+            conn.execute(
+                """
+                INSERT INTO room_guesses (
+                    room_id, player_id, name, word, similarity, rank_value, correct, attempt, created_at
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                (
+                    room_id,
+                    player_id,
+                    player_name,
+                    guess.word,
+                    guess.similarity,
+                    guess.rank,
+                    int(guess.correct),
+                    guess.attempt,
+                    created_at.isoformat(),
+                ),
+            )
+            conn.execute(
+                """
+                UPDATE room_players
+                SET solved = CASE WHEN ? = 1 THEN 1 ELSE solved END,
+                    last_active_at = ?
+                WHERE player_id = ?
+                """,
+                (int(guess.correct), created_at.isoformat(), player_id),
+            )
+        return created_at
+
+    def list_room_members(self, room_id: str) -> list[RoomMemberView]:
+        with self.connection() as conn:
+            rows = conn.execute(
+                """
+                SELECT
+                    p.player_id,
+                    p.name,
+                    p.solved,
+                    p.last_active_at,
+                    COUNT(g.id) AS attempts,
+                    MIN(g.rank_value) AS best_rank,
+                    MAX(g.similarity) AS best_similarity
+                FROM room_players p
+                LEFT JOIN room_guesses g
+                  ON p.player_id = g.player_id AND p.room_id = g.room_id
+                WHERE p.room_id = ?
+                GROUP BY p.player_id, p.name, p.solved, p.last_active_at
+                ORDER BY
+                    p.solved DESC,
+                    CASE WHEN MIN(g.rank_value) IS NULL THEN 999999 ELSE MIN(g.rank_value) END ASC,
+                    MAX(g.similarity) DESC,
+                    COUNT(g.id) ASC,
+                    p.name ASC
+                """,
+                (room_id,),
+            ).fetchall()
+
+        return [
+            RoomMemberView(
+                player_id=str(row["player_id"]),
+                name=str(row["name"]),
+                attempts=int(row["attempts"]),
+                best_rank=None if row["best_rank"] is None else int(row["best_rank"]),
+                best_similarity=None if row["best_similarity"] is None else float(row["best_similarity"]),
+                solved=bool(row["solved"]),
+                last_active_at=datetime.fromisoformat(str(row["last_active_at"])),
+            )
+            for row in rows
+        ]
+
+    def list_recent_room_guesses(self, room_id: str, limit: int = 20) -> list[RoomGuessView]:
+        with self.connection() as conn:
+            rows = conn.execute(
+                """
+                SELECT player_id, name, word, similarity, rank_value, correct, attempt, created_at
+                FROM room_guesses
+                WHERE room_id = ?
+                ORDER BY id DESC
+                LIMIT ?
+                """,
+                (room_id, limit),
+            ).fetchall()
+
+        return [
+            RoomGuessView(
+                player_id=str(row["player_id"]),
+                name=str(row["name"]),
+                word=str(row["word"]),
+                similarity=float(row["similarity"]),
+                rank=int(row["rank_value"]),
+                correct=bool(row["correct"]),
+                attempt=int(row["attempt"]),
+                created_at=datetime.fromisoformat(str(row["created_at"])),
+            )
+            for row in rows
+        ]
+
+    @staticmethod
+    def _guess_from_row(row: sqlite3.Row) -> GuessResult:
+        return GuessResult(
+            word=str(row["word"]),
+            similarity=float(row["similarity"]),
+            rank=int(row["rank_value"]),
+            correct=bool(row["correct"]),
+            attempt=int(row["attempt"]),
+        )
