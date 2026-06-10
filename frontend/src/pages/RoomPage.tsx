@@ -90,51 +90,81 @@ export function RoomPage({ playerName }: Props) {
 
   return (
     <section className="stack">
-      <div className="hero-card accent-card hero-card-room">
-        <div className="hero-topline">
-          <div>
-            <p className="eyebrow">Room Match</p>
-            <h2>방마다 별도 정답으로 경쟁</h2>
+      <div className="sheet-block accent-sheet-block">
+        <div className="sheet-block-columns">
+          <span>A</span>
+          <span>B</span>
+          <span>C</span>
+          <span>D</span>
+        </div>
+        <div className="sheet-block-body">
+          <div className="sheet-row">
+            <div className="sheet-row-number">1</div>
+            <div className="sheet-row-cells sheet-title-row">
+              <div>
+                <p className="eyebrow">Room Match</p>
+                <h2>방마다 별도 정답으로 경쟁</h2>
+              </div>
+              <div className="stat-strip">
+                <div className="stat-chip">
+                  <span>이름</span>
+                  <strong>{playerName}</strong>
+                </div>
+                <div className="stat-chip">
+                  <span>현재 방</span>
+                  <strong>{roomId ?? "-"}</strong>
+                </div>
+                <div className="stat-chip">
+                  <span>참가자</span>
+                  <strong>{room?.members.length ?? 0}</strong>
+                </div>
+              </div>
+            </div>
           </div>
-          <div className="stat-strip">
-            <div className="stat-chip">
-              <span>이름</span>
-              <strong>{playerName}</strong>
+          <div className="sheet-row">
+            <div className="sheet-row-number">2</div>
+            <div className="sheet-row-cells">
+              <p className="hero-copy">
+                모두가 같은 정답을 풀지만, 보이는 것은 누가 얼마나 가까워졌는지에 대한 상태와 순위입니다.
+              </p>
             </div>
-            <div className="stat-chip">
-              <span>현재 방</span>
-              <strong>{roomId ?? "-"}</strong>
+          </div>
+          <div className="sheet-row">
+            <div className="sheet-row-number">3</div>
+            <div className="sheet-row-cells">
+              <div className="room-actions">
+                <button type="button" onClick={createRoom}>
+                  방 만들기
+                </button>
+                <form className="inline-form" onSubmit={joinRoom}>
+                  <input
+                    value={roomIdInput}
+                    onChange={(event) => setRoomIdInput(event.target.value)}
+                    placeholder="방 코드"
+                  />
+                  <button type="submit">입장</button>
+                </form>
+              </div>
             </div>
-            <div className="stat-chip">
-              <span>참가자</span>
-              <strong>{room?.members.length ?? 0}</strong>
+          </div>
+          <div className="sheet-row">
+            <div className="sheet-row-number">4</div>
+            <div className="sheet-row-cells">
+              {roomId ? <p className="meta-text">방 코드 `{roomId}` 를 공유해서 다른 사람을 입장시키면 됩니다.</p> : null}
+              {roomId && playerId ? (
+                <form className="guess-form" onSubmit={submitGuess}>
+                  <input
+                    value={word}
+                    onChange={(event) => setWord(event.target.value)}
+                    placeholder="이 방의 정답 단어 추측"
+                  />
+                  <button type="submit">추측</button>
+                </form>
+              ) : null}
+              {error ? <p className="error-text">{error}</p> : null}
             </div>
           </div>
         </div>
-        <p className="hero-copy">
-          모두가 같은 정답을 풀지만, 보이는 것은 누가 얼마나 가까워졌는지에 대한 상태와 순위입니다.
-        </p>
-        <div className="room-actions">
-          <button type="button" onClick={createRoom}>
-            방 만들기
-          </button>
-          <form className="inline-form" onSubmit={joinRoom}>
-            <input
-              value={roomIdInput}
-              onChange={(event) => setRoomIdInput(event.target.value)}
-              placeholder="방 코드"
-            />
-            <button type="submit">입장</button>
-          </form>
-        </div>
-        {roomId ? <p className="meta-text">방 코드 `{roomId}` 를 공유해서 다른 사람을 입장시키면 됩니다.</p> : null}
-        {roomId && playerId ? (
-          <form className="guess-form" onSubmit={submitGuess}>
-            <input value={word} onChange={(event) => setWord(event.target.value)} placeholder="이 방의 정답 단어 추측" />
-            <button type="submit">추측</button>
-          </form>
-        ) : null}
-        {error ? <p className="error-text">{error}</p> : null}
       </div>
       {room ? <RoomBoard room={room} /> : null}
     </section>

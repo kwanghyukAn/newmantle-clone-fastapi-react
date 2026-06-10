@@ -272,6 +272,88 @@ button {
   gap: 0.85rem;
 }
 
+.sheet-block {
+  border: 1px solid #b8c4cf;
+  background: #ffffff;
+  box-shadow: 0 1px 2px rgba(31, 41, 55, 0.06);
+}
+
+.accent-sheet-block {
+  box-shadow: inset 3px 0 0 #0f6cbd;
+}
+
+.compact-sheet-block {
+  max-width: 100%;
+}
+
+.sheet-block-columns {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(0, 1fr);
+  min-height: 1.8rem;
+  background: #eef2f5;
+  border-bottom: 1px solid #c6d0d9;
+}
+
+.sheet-block-columns span {
+  display: grid;
+  place-items: center;
+  font-size: 0.78rem;
+  color: #4d5d6d;
+  border-right: 1px solid #c6d0d9;
+}
+
+.sheet-block-columns span:last-child {
+  border-right: 0;
+}
+
+.sheet-block-body {
+  display: grid;
+}
+
+.sheet-row {
+  display: grid;
+  grid-template-columns: 3rem minmax(0, 1fr);
+  min-height: 2.6rem;
+}
+
+.sheet-row + .sheet-row {
+  border-top: 1px solid #d7dee5;
+}
+
+.sheet-row-number {
+  display: grid;
+  place-items: center;
+  background: #f6f8fa;
+  color: #5e6d7d;
+  border-right: 1px solid #d7dee5;
+  font-size: 0.8rem;
+}
+
+.sheet-row-cells {
+  padding: 0.65rem 0.85rem;
+  background:
+    repeating-linear-gradient(
+      90deg,
+      transparent 0,
+      transparent calc(25% - 1px),
+      #edf2f6 calc(25% - 1px),
+      #edf2f6 25%
+    );
+}
+
+.sheet-title-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: flex-start;
+}
+
+.sheet-table-cell {
+  padding: 0;
+  background: #ffffff;
+}
+
 .hero-card,
 .panel {
   border: 1px solid #c6d0d9;
@@ -294,6 +376,10 @@ button {
   justify-content: space-between;
   align-items: flex-start;
   gap: 1rem;
+}
+
+.panel-header-tight {
+  width: 100%;
 }
 
 .eyebrow {
@@ -349,10 +435,9 @@ button {
 }
 
 .status-banner {
-  margin-top: 0.8rem;
-  padding: 0.75rem 0.9rem;
   border: 1px solid #c6d0d9;
   background: #fbfcfd;
+  background-image: none;
 }
 
 .tabset,
@@ -421,6 +506,7 @@ input:focus-visible {
   width: 100%;
   border-collapse: collapse;
   table-layout: fixed;
+  margin: 0;
 }
 
 .guess-table th,
@@ -505,8 +591,17 @@ code {
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 
+  .sheet-row {
+    grid-template-columns: 2.4rem minmax(0, 1fr);
+  }
+
+  .sheet-title-row,
   .diagnostics-grid,
   .guess-feed li {
     grid-template-columns: 1fr;
+  }
+
+  .sheet-title-row {
+    display: grid;
   }
 }
