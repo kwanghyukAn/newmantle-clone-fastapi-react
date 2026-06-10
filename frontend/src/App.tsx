@@ -8,17 +8,19 @@ type Mode = "solo" | "room";
 export default function App() {
   const [mode, setMode] = useState<Mode>("solo");
   const [playerName, setPlayerName] = useState("플레이어");
+  const columns = ["A", "B", "C", "D", "E", "F", "G", "H"];
+  const rowNumbers = Array.from({ length: 24 }, (_, index) => index + 1);
 
   return (
-    <div className="office-shell">
-      <header className="office-bar">
-        <div className="office-brand">
-          <div className="office-badge">W</div>
+    <div className="excel-shell">
+      <header className="excel-titlebar">
+        <div className="excel-brand">
+          <div className="excel-badge">X</div>
           <div className="brand-block">
-            <p className="eyebrow">Word Similarity Workspace</p>
-            <h1>뉴맨틀 업무형 보드</h1>
+            <p className="eyebrow">Spreadsheet Workspace</p>
+            <h1>뉴맨틀 운영 시트</h1>
             <p className="meta-text">
-              fastText 한국어 임베딩 기반 추측 게임을 단일 서버에서 운영할 수 있게 정리한 배포형 워크스페이스입니다.
+              fastText 한국어 임베딩 기반 추측 게임을 스프레드시트형 대시보드로 운영하는 화면입니다.
             </p>
           </div>
         </div>
@@ -29,9 +31,9 @@ export default function App() {
           </label>
         </div>
       </header>
-      <section className="ribbon">
-        <div className="ribbon-group">
-          <span className="ribbon-label">게임 모드</span>
+      <section className="excel-ribbon">
+        <div className="excel-toolbar">
+          <span className="ribbon-label">시트 보기</span>
           <div className="tabset">
             <button className={mode === "solo" ? "active" : ""} onClick={() => setMode("solo")}>
               오늘의 게임
@@ -41,16 +43,46 @@ export default function App() {
             </button>
           </div>
         </div>
-        <div className="ribbon-group ribbon-note">
-          <span className="ribbon-label">배포 모드</span>
-          <p className="meta-text">정적 빌드 후 FastAPI가 `/`와 `/assets`를 직접 서빙합니다.</p>
+        <div className="excel-toolbar">
+          <span className="ribbon-label">배포 상태</span>
+          <p className="meta-text">정적 빌드 시 FastAPI가 현재 시트를 그대로 서빙합니다.</p>
         </div>
       </section>
-      <main className="document-stage">
-        <div className="document-page">
-          <div className="content">
-            {mode === "solo" ? <SoloPage playerName={playerName} /> : <RoomPage playerName={playerName} />}
+      <section className="formula-bar">
+        <div className="name-box">{mode === "solo" ? "B2" : "D4"}</div>
+        <div className="formula-label">fx</div>
+        <div className="formula-input">
+          ="{mode === "solo" ? "오늘의 게임 진행 현황" : "방 경쟁 진행 현황"} / 사용자: {playerName}"
+        </div>
+      </section>
+      <main className="sheet-stage">
+        <div className="sheet-frame">
+          <div className="sheet-corner" />
+          <div className="column-headers">
+            {columns.map((column) => (
+              <span key={column}>{column}</span>
+            ))}
           </div>
+          <div className="row-headers">
+            {rowNumbers.map((row) => (
+              <span key={row}>{row}</span>
+            ))}
+          </div>
+          <div className="sheet-body">
+            <div className="sheet-surface">
+              <div className="content">
+                {mode === "solo" ? <SoloPage playerName={playerName} /> : <RoomPage playerName={playerName} />}
+              </div>
+            </div>
+          </div>
+        </div>
+        <div className="sheet-tabs">
+          <button className={`sheet-tab ${mode === "solo" ? "active" : ""}`} onClick={() => setMode("solo")}>
+            Daily
+          </button>
+          <button className={`sheet-tab ${mode === "room" ? "active" : ""}`} onClick={() => setMode("room")}>
+            Rooms
+          </button>
         </div>
       </main>
     </div>
