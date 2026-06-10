@@ -92,10 +92,22 @@ export default function App() {
             <span className="ribbon-group-label">클립보드</span>
           </div>
           <div className="ribbon-group ribbon-group-stack">
+            <div className="ribbon-combo-row">
+              <div className="ribbon-combo">맑은 고딕</div>
+              <div className="ribbon-combo ribbon-combo-size">11</div>
+            </div>
             <div className="ribbon-button-row">
               <button type="button" className="ribbon-tool">
                 <span className="ribbon-tool-icon ribbon-tool-icon-bold" aria-hidden="true" />
                 굵게
+              </button>
+              <button type="button" className="ribbon-tool">
+                <span className="ribbon-tool-icon ribbon-tool-icon-italic" aria-hidden="true" />
+                기울임
+              </button>
+              <button type="button" className="ribbon-tool">
+                <span className="ribbon-tool-icon ribbon-tool-icon-underline" aria-hidden="true" />
+                밑줄
               </button>
               <button type="button" className="ribbon-tool">
                 <span className="ribbon-tool-icon ribbon-tool-icon-border" aria-hidden="true" />
@@ -110,17 +122,44 @@ export default function App() {
           </div>
           <div className="ribbon-group ribbon-group-stack">
             <div className="ribbon-button-row">
-              <button type="button" className="ribbon-tool narrow">
-                정렬
+              <button type="button" className="ribbon-tool">
+                <span className="ribbon-tool-icon ribbon-tool-icon-align-left" aria-hidden="true" />
+                왼쪽
               </button>
-              <button type="button" className="ribbon-tool narrow">
-                필터
+              <button type="button" className="ribbon-tool">
+                <span className="ribbon-tool-icon ribbon-tool-icon-align-center" aria-hidden="true" />
+                가운데
               </button>
-              <button type="button" className="ribbon-tool narrow">
-                찾기
+              <button type="button" className="ribbon-tool">
+                <span className="ribbon-tool-icon ribbon-tool-icon-align-right" aria-hidden="true" />
+                오른쪽
+              </button>
+              <button type="button" className="ribbon-tool">
+                <span className="ribbon-tool-icon ribbon-tool-icon-merge" aria-hidden="true" />
+                병합
               </button>
             </div>
-            <span className="ribbon-group-label">편집</span>
+            <span className="ribbon-group-label">맞춤</span>
+          </div>
+          <div className="ribbon-group ribbon-group-stack">
+            <div className="ribbon-combo-row">
+              <div className="ribbon-combo">일반</div>
+            </div>
+            <div className="ribbon-button-row">
+              <button type="button" className="ribbon-tool narrow">
+                %
+              </button>
+              <button type="button" className="ribbon-tool narrow">
+                ,
+              </button>
+              <button type="button" className="ribbon-tool narrow">
+                .0
+              </button>
+              <button type="button" className="ribbon-tool narrow">
+                .00
+              </button>
+            </div>
+            <span className="ribbon-group-label">표시 형식</span>
           </div>
           <div className="ribbon-group ribbon-group-stack">
             <div className="tabset">
@@ -134,11 +173,62 @@ export default function App() {
             <span className="ribbon-group-label">모드</span>
           </div>
           <div className="ribbon-group ribbon-group-stack">
+            <div className="ribbon-button-row">
+              <button type="button" className="ribbon-tool">
+                <span className="ribbon-tool-icon ribbon-tool-icon-style-block" aria-hidden="true" />
+                조건부 서식
+              </button>
+              <button type="button" className="ribbon-tool">
+                <span className="ribbon-tool-icon ribbon-tool-icon-style-grid" aria-hidden="true" />
+                표 서식
+              </button>
+              <button type="button" className="ribbon-tool">
+                <span className="ribbon-tool-icon ribbon-tool-icon-style-cell" aria-hidden="true" />
+                셀 스타일
+              </button>
+            </div>
+            <span className="ribbon-group-label">스타일</span>
+          </div>
+          <div className="ribbon-group ribbon-group-stack">
+            <div className="ribbon-button-row">
+              <button type="button" className="ribbon-tool narrow">
+                삽입
+              </button>
+              <button type="button" className="ribbon-tool narrow">
+                삭제
+              </button>
+              <button type="button" className="ribbon-tool narrow">
+                서식
+              </button>
+            </div>
+            <span className="ribbon-group-label">셀</span>
+          </div>
+          <div className="ribbon-group ribbon-group-stack">
             <label className="ribbon-field">
               <span>참가자 이름</span>
               <input value={playerName} onChange={(event) => setPlayerName(event.target.value)} placeholder="이름" />
             </label>
             <span className="ribbon-group-label">세션</span>
+          </div>
+          <div className="ribbon-group ribbon-group-stack">
+            <div className="ribbon-button-row">
+              <button type="button" className="ribbon-tool narrow">
+                Σ
+              </button>
+              <button type="button" className="ribbon-tool narrow">
+                채우기
+              </button>
+              <button type="button" className="ribbon-tool narrow">
+                지우기
+              </button>
+              <button type="button" className="ribbon-tool narrow">
+                필터
+              </button>
+              <button type="button" className="ribbon-tool narrow">
+                찾기
+              </button>
+            </div>
+            <span className="ribbon-group-label">편집</span>
           </div>
           <div className="ribbon-group ribbon-group-stack ribbon-group-fill">
             <div className="ribbon-status">
@@ -146,6 +236,12 @@ export default function App() {
               <span className="ribbon-status-text">정적 배포, 방 경쟁, 실시간 랭킹, 한국어 의미 유사도 게임</span>
             </div>
             <span className="ribbon-group-label">정보</span>
+          </div>
+          <div className="ribbon-group ribbon-group-stack ribbon-group-apps">
+            <button type="button" className="ribbon-apps-button" aria-label="apps">
+              <span className="ribbon-tool-icon ribbon-tool-icon-apps" aria-hidden="true" />
+            </button>
+            <span className="ribbon-group-label">추가 기능</span>
           </div>
         </div>
       </section>

@@ -218,6 +218,34 @@ button {
   align-items: center;
 }
 
+.ribbon-combo-row {
+  display: flex;
+  gap: 0.3rem;
+  align-items: center;
+}
+
+.ribbon-combo {
+  min-height: 1.8rem;
+  min-width: 7.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 0.5rem;
+  border: 1px solid #c8d1da;
+  background: #ffffff;
+  color: #2f4358;
+  font-size: 0.8rem;
+}
+
+.ribbon-combo::after {
+  content: "▾";
+  color: #6b7a89;
+}
+
+.ribbon-combo-size {
+  min-width: 3.2rem;
+}
+
 .ribbon-mini-stack {
   display: grid;
   gap: 0.25rem;
@@ -326,6 +354,30 @@ button {
   font-size: 1rem;
 }
 
+.ribbon-tool-icon-italic::before {
+  content: "I";
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: #394d62;
+  font-style: italic;
+  font-weight: 700;
+  font-size: 1rem;
+}
+
+.ribbon-tool-icon-underline::before {
+  content: "U";
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: #394d62;
+  text-decoration: underline;
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+
 .ribbon-tool-icon-border {
   border: 1px solid #7d95ac;
   background:
@@ -336,6 +388,77 @@ button {
 .ribbon-tool-icon-fill {
   border: 1px solid #7d95ac;
   background: linear-gradient(180deg, #f6d16f 0 52%, #d0d8e2 52% 100%);
+}
+
+.ribbon-tool-icon-align-left,
+.ribbon-tool-icon-align-center,
+.ribbon-tool-icon-align-right {
+  background:
+    linear-gradient(#66798d, #66798d) 0 15%/100% 1px no-repeat,
+    linear-gradient(#66798d, #66798d) 0 40%/78% 1px no-repeat,
+    linear-gradient(#66798d, #66798d) 0 65%/94% 1px no-repeat,
+    linear-gradient(#66798d, #66798d) 0 90%/60% 1px no-repeat;
+}
+
+.ribbon-tool-icon-align-center {
+  background:
+    linear-gradient(#66798d, #66798d) 50% 15%/100% 1px no-repeat,
+    linear-gradient(#66798d, #66798d) 50% 40%/78% 1px no-repeat,
+    linear-gradient(#66798d, #66798d) 50% 65%/94% 1px no-repeat,
+    linear-gradient(#66798d, #66798d) 50% 90%/60% 1px no-repeat;
+}
+
+.ribbon-tool-icon-align-right {
+  background:
+    linear-gradient(#66798d, #66798d) 100% 15%/100% 1px no-repeat,
+    linear-gradient(#66798d, #66798d) 100% 40%/78% 1px no-repeat,
+    linear-gradient(#66798d, #66798d) 100% 65%/94% 1px no-repeat,
+    linear-gradient(#66798d, #66798d) 100% 90%/60% 1px no-repeat;
+}
+
+.ribbon-tool-icon-merge {
+  border: 1px solid #7d95ac;
+  background:
+    linear-gradient(#7d95ac, #7d95ac) 0 50%/100% 1px no-repeat,
+    linear-gradient(#7d95ac, #7d95ac) 50% 0/1px 100% no-repeat;
+}
+
+.ribbon-tool-icon-style-block,
+.ribbon-tool-icon-style-grid,
+.ribbon-tool-icon-style-cell {
+  border: 1px solid #7d95ac;
+  background: #f7fafc;
+}
+
+.ribbon-tool-icon-style-block::before {
+  content: "";
+  position: absolute;
+  inset: 0.15rem;
+  background: linear-gradient(135deg, #eb6a5b 0 50%, #f1c06d 50% 100%);
+}
+
+.ribbon-tool-icon-style-grid {
+  background:
+    linear-gradient(90deg, transparent 32%, #7d95ac 32%, #7d95ac 36%, transparent 36%, transparent 64%, #7d95ac 64%, #7d95ac 68%, transparent 68%),
+    linear-gradient(transparent 32%, #7d95ac 32%, #7d95ac 36%, transparent 36%, transparent 64%, #7d95ac 64%, #7d95ac 68%, transparent 68%),
+    #f7fafc;
+}
+
+.ribbon-tool-icon-style-cell::before {
+  content: "";
+  position: absolute;
+  inset: 0.18rem;
+  background: linear-gradient(180deg, #d3e1ef 0 33%, #f7fafc 33% 66%, #dfeee5 66% 100%);
+}
+
+.ribbon-tool-icon-apps {
+  border: 1px solid #7d95ac;
+  background:
+    radial-gradient(circle at 25% 25%, #217346 0 18%, transparent 19%),
+    radial-gradient(circle at 75% 25%, #217346 0 18%, transparent 19%),
+    radial-gradient(circle at 25% 75%, #217346 0 18%, transparent 19%),
+    radial-gradient(circle at 75% 75%, #217346 0 18%, transparent 19%),
+    #f7fafc;
 }
 
 .ribbon-group-label {
@@ -477,7 +600,7 @@ button {
 .sheet-surface {
   position: relative;
   min-height: 100%;
-  padding: 0.35rem 0.45rem;
+  padding: 0;
   background:
     repeating-linear-gradient(
       0deg,
@@ -501,10 +624,11 @@ button {
   grid-auto-rows: 42px;
   gap: 0;
   position: relative;
+  min-height: 100%;
 }
 
 .worksheet-region {
-  padding: 6px 8px;
+  padding: 4px 6px;
   background: transparent;
 }
 
@@ -1014,10 +1138,11 @@ input:focus-visible {
 
 .guess-table th,
 .guess-table td {
-  padding: 0.4rem 0.4rem;
+  padding: 0 6px;
+  height: 42px;
   border: 1px solid #dfe5eb;
   text-align: left;
-  vertical-align: top;
+  vertical-align: middle;
   background: rgba(255, 255, 255, 0.45);
 }
 
@@ -1054,10 +1179,26 @@ input:focus-visible {
   display: grid;
   grid-template-columns: 1.15fr 1fr 0.7fr 0.7fr;
   gap: 0.5rem;
-  padding: 0.45rem 0.4rem;
+  min-height: 42px;
+  padding: 0 6px;
+  align-items: center;
   border: 1px solid #dfe5eb;
   border-bottom: 0;
   background: rgba(255, 255, 255, 0.45);
+}
+
+.ribbon-group-apps {
+  min-width: 4rem;
+  align-items: center;
+}
+
+.ribbon-apps-button {
+  width: 2.1rem;
+  min-height: 2.1rem;
+  display: grid;
+  place-items: center;
+  border: 1px solid #c8d1da;
+  background: linear-gradient(180deg, #ffffff 0%, #edf2f6 100%);
 }
 
 .guess-feed-highlight {
