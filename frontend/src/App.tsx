@@ -9,7 +9,7 @@ export default function App() {
   const [mode, setMode] = useState<Mode>("solo");
   const [playerName, setPlayerName] = useState("플레이어");
   const [zoom, setZoom] = useState(100);
-  const columns = ["A", "B", "C", "D", "E", "F", "G", "H"];
+  const columns = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P"];
   const rowNumbers = Array.from({ length: 34 }, (_, index) => index + 1);
   const activeCell = mode === "solo" ? "B2" : "D4";
 

@@ -45,19 +45,10 @@ export function RoomBoard({ room, currentPlayerId }: Props) {
           <h3>상위권 힌트</h3>
           <span>유사도 컷라인</span>
         </div>
-        <div className="diagnostics-grid">
-          <div className="stat-chip">
-            <span>1위 유사도</span>
-            <strong>{room.hint_metrics.rank_1_similarity.toFixed(2)}</strong>
-          </div>
-          <div className="stat-chip">
-            <span>10위 컷</span>
-            <strong>{room.hint_metrics.top_10_cutoff_similarity.toFixed(2)}</strong>
-          </div>
-          <div className="stat-chip">
-            <span>100위 컷</span>
-            <strong>{room.hint_metrics.top_100_cutoff_similarity.toFixed(2)}</strong>
-          </div>
+        <div className="worksheet-key-table worksheet-key-table-compact">
+          <div><span>1위 유사도</span><strong>{room.hint_metrics.rank_1_similarity.toFixed(2)}</strong></div>
+          <div><span>10위 컷</span><strong>{room.hint_metrics.top_10_cutoff_similarity.toFixed(2)}</strong></div>
+          <div><span>100위 컷</span><strong>{room.hint_metrics.top_100_cutoff_similarity.toFixed(2)}</strong></div>
         </div>
       </section>
       <section className="worksheet-region worksheet-room-members">

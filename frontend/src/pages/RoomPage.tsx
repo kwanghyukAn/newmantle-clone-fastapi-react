@@ -106,19 +106,11 @@ export function RoomPage({ playerName }: Props) {
       </section>
 
       <section className="worksheet-region worksheet-room-summary">
-        <div className="stat-strip">
-          <div className="stat-chip">
-            <span>이름</span>
-            <strong>{playerName}</strong>
-          </div>
-          <div className="stat-chip">
-            <span>현재 방</span>
-            <strong>{roomId ?? "-"}</strong>
-          </div>
-          <div className="stat-chip">
-            <span>참가자</span>
-            <strong>{room?.members.length ?? 0}</strong>
-          </div>
+        <div className="worksheet-key-table">
+          <div><span>이름</span><strong>{playerName}</strong></div>
+          <div><span>현재 방</span><strong>{roomId ?? "-"}</strong></div>
+          <div><span>참가자</span><strong>{room?.members.length ?? 0}</strong></div>
+          <div><span>접속 상태</span><strong>{playerId ? "참가 중" : "대기"}</strong></div>
         </div>
       </section>
 

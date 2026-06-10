@@ -15,6 +15,7 @@ export function SoloPage({ playerName }: Props) {
   const [shareMessage, setShareMessage] = useState<string | null>(null);
   const [embeddingInfo, setEmbeddingInfo] = useState<EmbeddingInfo | null>(null);
   const latest = state?.guesses.at(-1) ?? null;
+  const latestRank = latest ? (latest.correct ? "정답" : latest.rank >= 1000 ? "1000위 이상" : `${latest.rank}위`) : "-";
 
   useEffect(() => {
     api.getDailyState(playerName).then(setState).catch((reason: Error) => setError(reason.message));
@@ -126,19 +127,11 @@ export function SoloPage({ playerName }: Props) {
       </section>
 
       <section className="worksheet-region worksheet-summary">
-        <div className="stat-strip">
-          <div className="stat-chip">
-            <span>플레이어</span>
-            <strong>{playerName}</strong>
-          </div>
-          <div className="stat-chip">
-            <span>시도</span>
-            <strong>{state?.guesses.length ?? 0}</strong>
-          </div>
-          <div className="stat-chip">
-            <span>힌트 사용</span>
-            <strong>{state?.hint_count ?? 0}</strong>
-          </div>
+        <div className="worksheet-key-table">
+          <div><span>플레이어</span><strong>{playerName}</strong></div>
+          <div><span>시도</span><strong>{state?.guesses.length ?? 0}</strong></div>
+          <div><span>힌트 사용</span><strong>{state?.hint_count ?? 0}</strong></div>
+          <div><span>최근 순위</span><strong>{latestRank}</strong></div>
         </div>
       </section>
 
@@ -191,19 +184,10 @@ export function SoloPage({ playerName }: Props) {
             <h3>환경 진단</h3>
             <span>{embeddingInfo.source}</span>
           </div>
-          <div className="diagnostics-grid">
-            <div className="stat-chip">
-              <span>허용 단어</span>
-              <strong>{embeddingInfo.total_words.toLocaleString()}</strong>
-            </div>
-            <div className="stat-chip">
-              <span>정답 후보</span>
-              <strong>{embeddingInfo.answer_words.toLocaleString()}</strong>
-            </div>
-            <div className="stat-chip">
-              <span>사전 교차</span>
-              <strong>{String(embeddingInfo.metadata.lexicon_intersection ?? false)}</strong>
-            </div>
+          <div className="worksheet-key-table worksheet-key-table-compact">
+            <div><span>허용 단어</span><strong>{embeddingInfo.total_words.toLocaleString()}</strong></div>
+            <div><span>정답 후보</span><strong>{embeddingInfo.answer_words.toLocaleString()}</strong></div>
+            <div><span>사전 교차</span><strong>{String(embeddingInfo.metadata.lexicon_intersection ?? false)}</strong></div>
           </div>
           <p className="meta-text">실제 fastText 데이터가 준비되면 이 값들이 훨씬 크게 보여야 합니다.</p>
         </section>
