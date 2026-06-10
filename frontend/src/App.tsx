@@ -10,7 +10,7 @@ export default function App() {
   const [playerName, setPlayerName] = useState("플레이어");
   const [zoom, setZoom] = useState(100);
   const columns = ["A", "B", "C", "D", "E", "F", "G", "H"];
-  const rowNumbers = Array.from({ length: 24 }, (_, index) => index + 1);
+  const rowNumbers = Array.from({ length: 34 }, (_, index) => index + 1);
   const activeCell = mode === "solo" ? "B2" : "D4";
 
   return (
@@ -32,7 +32,13 @@ export default function App() {
         </div>
         <div className="windowbar-title">cap_prune - Excel</div>
         <div className="windowbar-right">
-          <span className="windowbar-pill">자동 저장 꺼짐</span>
+          <label className="windowbar-search">
+            <span aria-hidden="true">🔍</span>
+            <input type="text" value="검색" readOnly />
+          </label>
+          <button type="button" className="windowbar-share">
+            공유 ▼
+          </button>
           <div className="window-controls" aria-hidden="true">
             <span />
             <span />
@@ -103,6 +109,20 @@ export default function App() {
             <span className="ribbon-group-label">글꼴</span>
           </div>
           <div className="ribbon-group ribbon-group-stack">
+            <div className="ribbon-button-row">
+              <button type="button" className="ribbon-tool narrow">
+                정렬
+              </button>
+              <button type="button" className="ribbon-tool narrow">
+                필터
+              </button>
+              <button type="button" className="ribbon-tool narrow">
+                찾기
+              </button>
+            </div>
+            <span className="ribbon-group-label">편집</span>
+          </div>
+          <div className="ribbon-group ribbon-group-stack">
             <div className="tabset">
               <button className={mode === "solo" ? "active" : ""} onClick={() => setMode("solo")}>
                 오늘의 게임
@@ -122,8 +142,8 @@ export default function App() {
           </div>
           <div className="ribbon-group ribbon-group-stack ribbon-group-fill">
             <div className="ribbon-status">
-              <span className="ribbon-status-title">배포 상태</span>
-              <span className="ribbon-status-text">정적 빌드 시 FastAPI가 현재 시트를 직접 서빙합니다.</span>
+              <span className="ribbon-status-title">cap_prune workspace</span>
+              <span className="ribbon-status-text">정적 배포, 방 경쟁, 실시간 랭킹, 한국어 의미 유사도 게임</span>
             </div>
             <span className="ribbon-group-label">정보</span>
           </div>
