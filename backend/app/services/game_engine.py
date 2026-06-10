@@ -65,6 +65,14 @@ class GameEngine:
     def metadata(self) -> dict[str, object]:
         return self._bundle.metadata
 
+    @property
+    def total_words(self) -> int:
+        return len(self._entries)
+
+    @property
+    def total_answer_words(self) -> int:
+        return len(self._answer_entries)
+
     def find_entry(self, word: str) -> VocabEntry | None:
         return self._entry_map.get(normalize_word(word))
 

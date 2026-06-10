@@ -61,7 +61,9 @@ pip install -r requirements.txt
 ```bash
 source backend/.venv/bin/activate
 python3 backend/scripts/prepare_fasttext_ko.py \
-  --noun-lexicon backend/app/data/noun_lexicon_seed.txt
+  --noun-lexicon backend/app/data/noun_lexicon_seed.txt \
+  --answer-whitelist backend/app/data/answer_whitelist_seed.txt \
+  --answer-blacklist backend/app/data/answer_blacklist_seed.txt
 ```
 
 이 명령은 다음을 수행합니다.
@@ -69,7 +71,8 @@ python3 backend/scripts/prepare_fasttext_ko.py \
 1. 공식 fastText 한국어 `cc.ko.300.vec.gz` 다운로드
 2. 한국어 noun-like 토큰 필터링
 3. 선택적으로 명사 사전과 교차
-4. 앱이 읽을 수 있는 압축 벡터 파일 생성
+4. 정답 후보 화이트리스트/블랙리스트 적용
+5. 앱이 읽을 수 있는 압축 벡터 파일 생성
 
 생성 결과:
 
@@ -137,6 +140,22 @@ npm run dev
 - 공유용 결과 문구 생성
 
 이 상태 값 일부는 SQLite의 일일 세션 메타에 저장됩니다.
+
+## 어휘 품질 제어
+
+현재 프로젝트는 세 가지 텍스트 파일로 answer pool 품질을 조정할 수 있습니다.
+
+- `backend/app/data/noun_lexicon_seed.txt`
+- `backend/app/data/answer_whitelist_seed.txt`
+- `backend/app/data/answer_blacklist_seed.txt`
+
+권장 방식:
+
+1. `noun_lexicon_seed.txt` 는 "허용할 명사" 기준
+2. `answer_whitelist_seed.txt` 는 "정답으로 특히 쓰고 싶은 단어" 기준
+3. `answer_blacklist_seed.txt` 는 "정답에서 빼고 싶은 단어" 기준
+
+실서비스로 갈수록 이 세 파일은 더 큰 사전/운영 데이터로 교체하면 됩니다.
 
 ### 더 좋은 품질로 가려면
 

@@ -31,6 +31,13 @@ class RevealResult(BaseModel):
     description: str
 
 
+class EmbeddingInfo(BaseModel):
+    source: str
+    total_words: int
+    answer_words: int
+    metadata: dict[str, object]
+
+
 class DailyState(BaseModel):
     game_date: date
     guesses: list[GuessResult]

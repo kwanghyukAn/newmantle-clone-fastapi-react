@@ -4,7 +4,7 @@ from datetime import date
 
 from fastapi import APIRouter, HTTPException
 
-from app.models.schemas import DailyState, GuessRequest, GuessResult, HintResult, RevealResult
+from app.models.schemas import DailyState, EmbeddingInfo, GuessRequest, GuessResult, HintResult, RevealResult
 from app.services.game_engine import GameEngine
 from app.services.storage import SQLiteRepository
 from app.core.config import DB_PATH
@@ -74,3 +74,13 @@ def give_up(player_name: str | None = None, game_date: date | None = None) -> Re
     reveal = engine.reveal(answer)
     repository.reveal_daily_answer(player_name, resolved_date, reveal)
     return reveal
+
+
+@router.get("/embedding-info", response_model=EmbeddingInfo)
+def get_embedding_info() -> EmbeddingInfo:
+    return EmbeddingInfo(
+        source=engine.source,
+        total_words=engine.total_words,
+        answer_words=engine.total_answer_words,
+        metadata=engine.metadata,
+    )

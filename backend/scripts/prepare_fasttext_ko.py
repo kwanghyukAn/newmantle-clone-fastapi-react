@@ -67,6 +67,16 @@ def parse_args() -> argparse.Namespace:
         default=8000,
         help="Maximum number of answer candidates to retain from the filtered vocabulary.",
     )
+    parser.add_argument(
+        "--answer-whitelist",
+        default="",
+        help="Optional newline-delimited list of answer words to prioritize and include when present in vocab.",
+    )
+    parser.add_argument(
+        "--answer-blacklist",
+        default="",
+        help="Optional newline-delimited list of words to exclude from answer candidates.",
+    )
     return parser.parse_args()
 
 
@@ -106,6 +116,17 @@ def load_noun_lexicon(path: str) -> set[str]:
     }
 
 
+def load_word_list(path: str) -> list[str]:
+    if not path:
+        return []
+    list_path = Path(path)
+    return [
+        line.strip()
+        for line in list_path.read_text(encoding="utf-8").splitlines()
+        if line.strip() and is_hangul_word(line.strip())
+    ]
+
+
 def download_with_resume(url: str, destination: Path) -> None:
     destination.parent.mkdir(parents=True, exist_ok=True)
     existing_size = destination.stat().st_size if destination.exists() else 0
@@ -131,11 +152,14 @@ def convert_vec_gz(
     max_vocab: int,
     noun_lexicon: set[str],
     max_answer_vocab: int,
+    answer_whitelist: list[str],
+    answer_blacklist: set[str],
 ) -> None:
     words: list[str] = []
     vectors: list[list[float]] = []
     seen: set[str] = set()
     answer_words: list[str] = []
+    filtered_answer_whitelist = [word for word in answer_whitelist if looks_like_answer_candidate(word)]
 
     with gzip.open(source, "rt", encoding="utf-8", newline="\n", errors="ignore") as handle:
         header = handle.readline()
@@ -161,10 +185,32 @@ def convert_vec_gz(
             seen.add(normalized)
             words.append(word)
             vectors.append(vector)
-            if len(answer_words) < max_answer_vocab and looks_like_answer_candidate(word):
+            if (
+                len(answer_words) < max_answer_vocab
+                and looks_like_answer_candidate(word)
+                and word not in answer_blacklist
+            ):
                 answer_words.append(word)
             if len(words) >= max_vocab:
                 break
+
+    if filtered_answer_whitelist:
+        allowed = set(words)
+        curated: list[str] = []
+        seen_answers: set[str] = set()
+        for word in filtered_answer_whitelist:
+            if word in allowed and word not in answer_blacklist and word not in seen_answers:
+                curated.append(word)
+                seen_answers.add(word)
+        for word in answer_words:
+            if word not in seen_answers:
+                curated.append(word)
+                seen_answers.add(word)
+            if len(curated) >= max_answer_vocab:
+                break
+        answer_words = curated[:max_answer_vocab]
+    else:
+        answer_words = [word for word in answer_words if word not in answer_blacklist][:max_answer_vocab]
 
     output_dir.mkdir(parents=True, exist_ok=True)
     np.savez_compressed(output_dir / "fasttext_ko_vectors.npz", vectors=np.asarray(vectors, dtype=np.float32))
@@ -182,6 +228,8 @@ def convert_vec_gz(
                 "dimension": len(vectors[0]) if vectors else 0,
                 "filter": "hangul noun-like heuristic",
                 "lexicon_intersection": bool(noun_lexicon),
+                "answer_whitelist_applied": bool(filtered_answer_whitelist),
+                "answer_blacklist_applied": bool(answer_blacklist),
             },
             ensure_ascii=False,
             indent=2,
@@ -195,10 +243,20 @@ def main() -> None:
     cache_path = Path(args.cache_path)
     output_dir = Path(args.output_dir)
     noun_lexicon = load_noun_lexicon(args.noun_lexicon)
+    answer_whitelist = load_word_list(args.answer_whitelist)
+    answer_blacklist = set(load_word_list(args.answer_blacklist))
     print(f"downloading official fastText Korean vectors to {cache_path}")
     download_with_resume(args.download_url, cache_path)
     print(f"converting to filtered app dataset in {output_dir}")
-    convert_vec_gz(cache_path, output_dir, args.max_vocab, noun_lexicon, args.max_answer_vocab)
+    convert_vec_gz(
+        cache_path,
+        output_dir,
+        args.max_vocab,
+        noun_lexicon,
+        args.max_answer_vocab,
+        answer_whitelist,
+        answer_blacklist,
+    )
     print("done")
 
 

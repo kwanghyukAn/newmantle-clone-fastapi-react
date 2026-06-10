@@ -17,7 +17,9 @@ python3 -m venv backend/.venv
 source backend/.venv/bin/activate
 pip install -r backend/requirements.txt
 python3 backend/scripts/prepare_fasttext_ko.py \
-  --noun-lexicon backend/app/data/noun_lexicon_seed.txt
+  --noun-lexicon backend/app/data/noun_lexicon_seed.txt \
+  --answer-whitelist backend/app/data/answer_whitelist_seed.txt \
+  --answer-blacklist backend/app/data/answer_blacklist_seed.txt
 ```
 
 This downloads the official fastText Korean `cc.ko.300.vec.gz` archive, filters noun-like Hangul words, and generates app-ready files in `backend/app/data/`.
