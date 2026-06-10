@@ -110,6 +110,34 @@ npm run dev -- --host 0.0.0.0 --port 5173
 - 예시 프런트: `http://서버IP:5173`
 - 예시 백엔드 헬스체크: `http://서버IP:8000/health`
 
+## 배포용 정적 빌드
+
+운영 배포에서는 Vite 개발 서버를 띄우지 않고, 프런트를 정적 빌드한 뒤 FastAPI가 직접 서빙하는 구조를 권장합니다.
+
+### 1. 프런트 빌드
+
+```bash
+cd frontend
+npm install
+npm run build
+```
+
+이 명령으로 `frontend/dist`가 생성됩니다.
+
+### 2. 백엔드 실행
+
+```bash
+cd backend
+source .venv/bin/activate
+uvicorn app.main:app --host 0.0.0.0 --port 8000
+```
+
+이제 아래 주소 하나만 열면 됩니다.
+
+- `http://서버IP:8000`
+
+현재 `backend/app/main.py`는 `frontend/dist/index.html`과 `frontend/dist/assets/*`가 존재하면 이를 직접 서빙합니다. 그래서 운영 환경에서는 프런트와 API가 같은 origin으로 붙고, CORS를 별도로 의식할 일이 크게 줄어듭니다.
+
 ## 데이터 관련 설명
 
 ### 왜 fastText를 선택했는가
@@ -189,6 +217,7 @@ npm run dev -- --host 0.0.0.0 --port 5173
 2. 인터넷 연결
 3. fastText 원본 다운로드 허용
 4. 약간의 디스크 여유 공간
+5. 운영 배포 시 `frontend/dist` 생성
 
 원본 `cc.ko.300.vec.gz`는 2026-06-10 확인 기준 약 `1.27GB`입니다.
 

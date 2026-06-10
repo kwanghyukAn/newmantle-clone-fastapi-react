@@ -32,11 +32,30 @@ npm install
 npm run dev -- --host 0.0.0.0 --port 5173
 ```
 
+## Static build deployment
+
+프런트를 정적 빌드한 뒤 FastAPI가 직접 서빙할 수 있습니다.
+
+```bash
+cd frontend
+npm install
+npm run build
+```
+
+```bash
+cd backend
+source .venv/bin/activate
+uvicorn app.main:app --host 0.0.0.0 --port 8000
+```
+
+이 상태에서는 프런트와 API를 모두 `http://서버IP:8000` 하나로 접근합니다. `frontend/dist`가 존재하면 FastAPI가 `/`와 `/assets/*`를 직접 서빙합니다.
+
 ## Access from another PC
 
 If the server PC IP is `192.168.0.10`, open:
 
-- Frontend: `http://192.168.0.10:5173`
+- Frontend dev mode: `http://192.168.0.10:5173`
+- Frontend static deployment: `http://192.168.0.10:8000`
 - Backend health: `http://192.168.0.10:8000/health`
 
 The frontend now uses relative `/api` requests with Vite proxy in dev mode, so same-server and same-network access avoids the old localhost CORS mismatch.

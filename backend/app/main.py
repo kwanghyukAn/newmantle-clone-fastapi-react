@@ -1,6 +1,9 @@
 import os
+from pathlib import Path
 
 from fastapi import FastAPI
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.routes_game import repository as daily_repository
@@ -39,3 +42,26 @@ def initialize_storage() -> None:
 @app.get("/health")
 def healthcheck() -> dict[str, str]:
     return {"status": "ok"}
+
+
+frontend_dist = Path(__file__).resolve().parents[2] / "frontend" / "dist"
+frontend_assets = frontend_dist / "assets"
+frontend_index = frontend_dist / "index.html"
+
+if frontend_assets.exists():
+    app.mount("/assets", StaticFiles(directory=frontend_assets), name="assets")
+
+
+if frontend_index.exists():
+
+    @app.get("/")
+    def serve_frontend() -> FileResponse:
+        return FileResponse(frontend_index)
+
+
+    @app.get("/{full_path:path}")
+    def serve_frontend_routes(full_path: str) -> FileResponse:
+        requested = frontend_dist / full_path
+        if requested.exists() and requested.is_file():
+            return FileResponse(requested)
+        return FileResponse(frontend_index)
