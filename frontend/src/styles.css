@@ -188,6 +188,11 @@ button {
   align-items: center;
 }
 
+.ribbon-mini-stack {
+  display: grid;
+  gap: 0.25rem;
+}
+
 .ribbon-tool {
   min-height: 3rem;
   min-width: 4.4rem;
@@ -196,10 +201,107 @@ button {
   background: linear-gradient(180deg, #ffffff 0%, #edf2f6 100%);
   color: #2f4358;
   font-weight: 600;
+  display: grid;
+  justify-items: center;
+  align-content: center;
+  gap: 0.25rem;
 }
 
 .ribbon-tool.is-strong {
   min-height: 4.2rem;
+}
+
+.ribbon-tool-mini {
+  width: 2rem;
+  min-height: 2rem;
+  border: 1px solid #c8d1da;
+  background: linear-gradient(180deg, #ffffff 0%, #edf2f6 100%);
+  display: grid;
+  place-items: center;
+}
+
+.ribbon-tool-icon {
+  display: block;
+  width: 1.2rem;
+  height: 1.2rem;
+  position: relative;
+}
+
+.ribbon-tool-icon-paste {
+  border: 1px solid #7d95ac;
+  background: linear-gradient(180deg, #dce7f1 0%, #b7cbe0 100%);
+}
+
+.ribbon-tool-icon-paste::before {
+  content: "";
+  position: absolute;
+  top: -0.18rem;
+  left: 0.25rem;
+  width: 0.7rem;
+  height: 0.28rem;
+  border: 1px solid #7d95ac;
+  border-bottom: 0;
+  background: #f4f7fa;
+}
+
+.ribbon-tool-icon-cut::before,
+.ribbon-tool-icon-cut::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: 1rem;
+  height: 1px;
+  background: #4e6277;
+  transform-origin: center;
+}
+
+.ribbon-tool-icon-cut::before {
+  transform: rotate(35deg);
+}
+
+.ribbon-tool-icon-cut::after {
+  transform: rotate(-35deg);
+}
+
+.ribbon-tool-icon-copy {
+  border: 1px solid #7d95ac;
+  background: #e8eef5;
+}
+
+.ribbon-tool-icon-copy::before {
+  content: "";
+  position: absolute;
+  top: -0.18rem;
+  left: -0.18rem;
+  width: 1.2rem;
+  height: 1.2rem;
+  border: 1px solid #a3b2c0;
+  background: #f7fafc;
+  z-index: -1;
+}
+
+.ribbon-tool-icon-bold::before {
+  content: "B";
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: #394d62;
+  font-weight: 800;
+  font-size: 1rem;
+}
+
+.ribbon-tool-icon-border {
+  border: 1px solid #7d95ac;
+  background:
+    linear-gradient(90deg, transparent 32%, #7d95ac 32%, #7d95ac 36%, transparent 36%, transparent 64%, #7d95ac 64%, #7d95ac 68%, transparent 68%),
+    linear-gradient(transparent 32%, #7d95ac 32%, #7d95ac 36%, transparent 36%, transparent 64%, #7d95ac 64%, #7d95ac 68%, transparent 68%);
+}
+
+.ribbon-tool-icon-fill {
+  border: 1px solid #7d95ac;
+  background: linear-gradient(180deg, #f6d16f 0 52%, #d0d8e2 52% 100%);
 }
 
 .ribbon-group-label {
@@ -339,6 +441,7 @@ button {
 }
 
 .sheet-surface {
+  position: relative;
   min-height: 100%;
   padding: 1rem;
   background:
@@ -356,6 +459,35 @@ button {
       #edf2f6 119px,
       #edf2f6 120px
     );
+}
+
+.active-cell-overlay {
+  position: absolute;
+  width: 120px;
+  height: 42px;
+  border: 2px solid #217346;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.65);
+  pointer-events: none;
+}
+
+.active-cell-overlay::after {
+  content: "";
+  position: absolute;
+  right: -3px;
+  bottom: -3px;
+  width: 7px;
+  height: 7px;
+  background: #217346;
+}
+
+.active-cell-overlay.cell-b2 {
+  top: 42px;
+  left: 120px;
+}
+
+.active-cell-overlay.cell-d4 {
+  top: 126px;
+  left: 360px;
 }
 
 .sheet-bottom-chrome {

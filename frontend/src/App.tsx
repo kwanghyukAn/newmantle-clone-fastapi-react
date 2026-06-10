@@ -11,6 +11,7 @@ export default function App() {
   const [zoom, setZoom] = useState(100);
   const columns = ["A", "B", "C", "D", "E", "F", "G", "H"];
   const rowNumbers = Array.from({ length: 24 }, (_, index) => index + 1);
+  const activeCell = mode === "solo" ? "B2" : "D4";
 
   return (
     <div className="excel-shell">
@@ -70,10 +71,36 @@ export default function App() {
           <div className="ribbon-group ribbon-group-stack">
             <div className="ribbon-button-row">
               <button type="button" className="ribbon-tool is-strong">
+                <span className="ribbon-tool-icon ribbon-tool-icon-paste" aria-hidden="true" />
                 붙여넣기
               </button>
+              <div className="ribbon-mini-stack">
+                <button type="button" className="ribbon-tool-mini">
+                  <span className="ribbon-tool-icon ribbon-tool-icon-cut" aria-hidden="true" />
+                </button>
+                <button type="button" className="ribbon-tool-mini">
+                  <span className="ribbon-tool-icon ribbon-tool-icon-copy" aria-hidden="true" />
+                </button>
+              </div>
             </div>
             <span className="ribbon-group-label">클립보드</span>
+          </div>
+          <div className="ribbon-group ribbon-group-stack">
+            <div className="ribbon-button-row">
+              <button type="button" className="ribbon-tool">
+                <span className="ribbon-tool-icon ribbon-tool-icon-bold" aria-hidden="true" />
+                굵게
+              </button>
+              <button type="button" className="ribbon-tool">
+                <span className="ribbon-tool-icon ribbon-tool-icon-border" aria-hidden="true" />
+                테두리
+              </button>
+              <button type="button" className="ribbon-tool">
+                <span className="ribbon-tool-icon ribbon-tool-icon-fill" aria-hidden="true" />
+                채우기
+              </button>
+            </div>
+            <span className="ribbon-group-label">글꼴</span>
           </div>
           <div className="ribbon-group ribbon-group-stack">
             <div className="tabset">
@@ -103,7 +130,7 @@ export default function App() {
         </div>
       </section>
       <section className="formula-bar">
-        <div className="name-box">{mode === "solo" ? "B2" : "D4"}</div>
+        <div className="name-box">{activeCell}</div>
         <div className="formula-label">fx</div>
         <div className="formula-input">
           ="{mode === "solo" ? "오늘의 게임 진행 현황" : "방 경쟁 진행 현황"} / 사용자: {playerName}"
@@ -124,6 +151,7 @@ export default function App() {
           </div>
           <div className="sheet-body">
             <div className="sheet-surface">
+              <div className={`active-cell-overlay ${mode === "solo" ? "cell-b2" : "cell-d4"}`} aria-hidden="true" />
               <div className="content">
                 {mode === "solo" ? <SoloPage playerName={playerName} /> : <RoomPage playerName={playerName} />}
               </div>
