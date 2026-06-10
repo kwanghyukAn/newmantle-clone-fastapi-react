@@ -8,6 +8,7 @@ type Mode = "solo" | "room";
 export default function App() {
   const [mode, setMode] = useState<Mode>("solo");
   const [playerName, setPlayerName] = useState("플레이어");
+  const [zoom, setZoom] = useState(100);
   const columns = ["A", "B", "C", "D", "E", "F", "G", "H"];
   const rowNumbers = Array.from({ length: 24 }, (_, index) => index + 1);
 
@@ -129,15 +130,52 @@ export default function App() {
             </div>
           </div>
         </div>
-        <div className="sheet-tabs">
-          <button className={`sheet-tab ${mode === "solo" ? "active" : ""}`} onClick={() => setMode("solo")}>
-            Daily
-          </button>
-          <button className={`sheet-tab ${mode === "room" ? "active" : ""}`} onClick={() => setMode("room")}>
-            Rooms
-          </button>
+        <div className="sheet-bottom-chrome">
+          <div className="sheet-nav">
+            <button type="button" className="sheet-nav-button" aria-label="prev sheet">
+              ‹
+            </button>
+            <button type="button" className="sheet-nav-button" aria-label="next sheet">
+              ›
+            </button>
+          </div>
+          <div className="sheet-tabs">
+            <button className={`sheet-tab ${mode === "solo" ? "active" : ""}`} onClick={() => setMode("solo")}>
+              Daily
+            </button>
+            <button className={`sheet-tab ${mode === "room" ? "active" : ""}`} onClick={() => setMode("room")}>
+              Rooms
+            </button>
+          </div>
+          <div className="sheet-scroll-track" aria-hidden="true">
+            <div className="sheet-scroll-thumb" />
+          </div>
         </div>
       </main>
+      <footer className="excel-statusbar">
+        <div className="statusbar-left">
+          <span className="status-pill">준비</span>
+          <span className="status-text">cap_prune</span>
+          <span className="status-text">{mode === "solo" ? "오늘의 게임" : "방 경쟁"}</span>
+        </div>
+        <div className="statusbar-right">
+          <div className="view-controls" aria-hidden="true">
+            <span className="view-button active" />
+            <span className="view-button" />
+            <span className="view-button" />
+          </div>
+          <div className="zoom-control">
+            <span>{zoom}%</span>
+            <input
+              type="range"
+              min="60"
+              max="140"
+              value={zoom}
+              onChange={(event) => setZoom(Number(event.target.value))}
+            />
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }

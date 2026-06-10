@@ -86,6 +86,10 @@ button {
   border-radius: 0.2rem;
 }
 
+.quick-actions button:hover {
+  background: rgba(255, 255, 255, 0.14);
+}
+
 .windowbar-title {
   flex: 1;
   text-align: center;
@@ -153,6 +157,7 @@ button {
   gap: 1rem;
   padding: 0.8rem 0.9rem 0.7rem;
   background: #ffffff;
+  overflow-x: auto;
 }
 
 .ribbon-group {
@@ -353,10 +358,31 @@ button {
     );
 }
 
+.sheet-bottom-chrome {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  min-height: 2.2rem;
+}
+
+.sheet-nav {
+  display: flex;
+  gap: 0.2rem;
+}
+
+.sheet-nav-button {
+  width: 1.8rem;
+  min-height: 1.8rem;
+  border: 1px solid #b8c4cf;
+  background: linear-gradient(180deg, #ffffff 0%, #edf2f6 100%);
+  color: #45596d;
+  font-size: 1rem;
+}
+
 .sheet-tabs {
   display: flex;
   gap: 0.35rem;
-  padding-left: 3.75rem;
+  align-items: end;
 }
 
 .sheet-tab {
@@ -373,6 +399,90 @@ button {
   background: #ffffff;
   color: #217346;
   box-shadow: inset 0 3px 0 #217346;
+}
+
+.sheet-scroll-track {
+  flex: 1;
+  height: 1rem;
+  display: flex;
+  align-items: center;
+  padding: 0 0.25rem;
+  border: 1px solid #ccd5de;
+  background: #edf2f6;
+}
+
+.sheet-scroll-thumb {
+  width: 22%;
+  height: 0.55rem;
+  background: #c2ccd6;
+  border: 1px solid #acb8c4;
+}
+
+.excel-statusbar {
+  min-height: 2rem;
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: center;
+  padding: 0.25rem 0.75rem;
+  background: #f3f5f7;
+  border-top: 1px solid #cdd6dd;
+}
+
+.statusbar-left,
+.statusbar-right {
+  display: flex;
+  gap: 0.7rem;
+  align-items: center;
+}
+
+.status-pill {
+  padding: 0.1rem 0.45rem;
+  border-radius: 999px;
+  background: #dfeee5;
+  color: #217346;
+  font-size: 0.74rem;
+  font-weight: 700;
+}
+
+.status-text {
+  font-size: 0.76rem;
+  color: #5c6d7d;
+}
+
+.view-controls {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.view-button {
+  width: 1.4rem;
+  height: 1.1rem;
+  border: 1px solid #bcc7d2;
+  background: #ffffff;
+}
+
+.view-button.active {
+  border-color: #217346;
+  background: #e7f1eb;
+}
+
+.zoom-control {
+  display: flex;
+  gap: 0.45rem;
+  align-items: center;
+}
+
+.zoom-control span {
+  min-width: 2.6rem;
+  font-size: 0.76rem;
+  color: #55677a;
+  text-align: right;
+}
+
+.zoom-control input[type="range"] {
+  width: 8rem;
+  accent-color: #217346;
 }
 
 .content,
@@ -710,6 +820,13 @@ code {
 
   .windowbar-title {
     text-align: left;
+  }
+
+  .sheet-bottom-chrome,
+  .excel-statusbar,
+  .statusbar-left,
+  .statusbar-right {
+    flex-wrap: wrap;
   }
 
   .formula-bar {
