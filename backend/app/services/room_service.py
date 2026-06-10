@@ -69,6 +69,7 @@ class RoomService:
             answer_length=len(answer.word),
             created_at=created_at,
             hint_metrics=self._engine.room_hint_metrics(answer),
+            first_solver=self._repository.get_room_first_solver(room_id),
             members=self._repository.list_room_members(room_id),
             recent_guesses=self._repository.list_recent_room_guesses(room_id),
         )

@@ -50,6 +50,12 @@ export type RoomState = {
     top_10_cutoff_similarity: number;
     top_100_cutoff_similarity: number;
   };
+  first_solver: {
+    player_id: string;
+    name: string;
+    solve_order: number;
+    solved_at: string;
+  } | null;
   members: Array<{
     player_id: string;
     name: string;
@@ -57,6 +63,8 @@ export type RoomState = {
     best_rank: number | null;
     best_similarity: number | null;
     solved: boolean;
+    solve_order: number | null;
+    solved_at: string | null;
     last_active_at: string;
   }>;
   recent_guesses: Array<{

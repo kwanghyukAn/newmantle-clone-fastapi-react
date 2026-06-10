@@ -18,6 +18,13 @@ function formatRank(rank: number | null, solved = false) {
   return `${rank}위`;
 }
 
+function formatSolveOrder(order: number | null) {
+  if (order === null) {
+    return "-";
+  }
+  return `${order}위`;
+}
+
 export function RoomBoard({ room, currentPlayerId }: Props) {
   const myLatestGuess = currentPlayerId
     ? room.recent_guesses.find((guess) => guess.player_id === currentPlayerId) ?? null
@@ -43,24 +50,32 @@ export function RoomBoard({ room, currentPlayerId }: Props) {
       <section className="worksheet-region worksheet-room-hints">
         <div className="worksheet-region-head">
           <h3>상위권 힌트</h3>
-          <span>유사도 컷라인</span>
+          <span>{room.first_solver ? `최초 정답 ${room.first_solver.name}` : "유사도 컷라인"}</span>
         </div>
         <div className="worksheet-key-table worksheet-key-table-compact">
           <div><span>1위 유사도</span><strong>{room.hint_metrics.rank_1_similarity.toFixed(2)}</strong></div>
           <div><span>10위 컷</span><strong>{room.hint_metrics.top_10_cutoff_similarity.toFixed(2)}</strong></div>
           <div><span>100위 컷</span><strong>{room.hint_metrics.top_100_cutoff_similarity.toFixed(2)}</strong></div>
         </div>
+        {room.first_solver ? (
+          <p className="meta-text">
+            가장 먼저 정답을 맞춘 사람은 {room.first_solver.name}이며 완주 순위 {room.first_solver.solve_order}위입니다.
+          </p>
+        ) : (
+          <p className="meta-text">아직 아무도 정답을 맞추지 못했습니다.</p>
+        )}
       </section>
       <section className="worksheet-region worksheet-room-members">
         <div className="worksheet-region-head">
           <h3>참가자 순위</h3>
-          <span>실시간 보드</span>
+          <span>진행 순위 + 완주 순위</span>
         </div>
         <table className="guess-table">
           <thead>
             <tr>
               <th>상태</th>
               <th>이름</th>
+              <th>완주 순위</th>
               <th>시도</th>
               <th>최고 순위</th>
               <th>최고 유사도</th>
@@ -71,6 +86,7 @@ export function RoomBoard({ room, currentPlayerId }: Props) {
               <tr key={member.player_id} className={member.solved ? "guess-row guess-row-correct" : "guess-row"}>
                 <td>{member.solved ? "완료" : "진행중"}</td>
                 <td className="guess-word">{member.name}</td>
+                <td>{formatSolveOrder(member.solve_order)}</td>
                 <td>{member.attempts}</td>
                 <td>{formatRank(member.best_rank, member.solved)}</td>
                 <td>{member.best_similarity?.toFixed(2) ?? "-"}</td>

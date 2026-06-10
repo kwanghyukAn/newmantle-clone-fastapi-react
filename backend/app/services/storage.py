@@ -6,7 +6,7 @@ from datetime import date, datetime, timezone
 from pathlib import Path
 from typing import Iterator
 
-from app.models.schemas import GuessResult, RevealResult, RoomGuessView, RoomMemberView
+from app.models.schemas import GuessResult, RevealResult, RoomGuessView, RoomMemberView, RoomSolveLeader
 
 
 class SQLiteRepository:
@@ -62,6 +62,8 @@ class SQLiteRepository:
                     room_id TEXT NOT NULL,
                     name TEXT NOT NULL,
                     solved INTEGER NOT NULL DEFAULT 0,
+                    solve_order INTEGER,
+                    solved_at TEXT,
                     last_active_at TEXT NOT NULL,
                     FOREIGN KEY(room_id) REFERENCES rooms(room_id)
                 );
@@ -82,6 +84,13 @@ class SQLiteRepository:
                 );
                 """
             )
+            room_player_columns = {
+                str(row["name"]) for row in conn.execute("PRAGMA table_info(room_players)").fetchall()
+            }
+            if "solve_order" not in room_player_columns:
+                conn.execute("ALTER TABLE room_players ADD COLUMN solve_order INTEGER")
+            if "solved_at" not in room_player_columns:
+                conn.execute("ALTER TABLE room_players ADD COLUMN solved_at TEXT")
 
     def get_daily_guesses(self, player_name: str | None, game_date: date) -> list[GuessResult]:
         key = player_name or "anonymous"
@@ -221,8 +230,8 @@ class SQLiteRepository:
             )
             conn.execute(
                 """
-                INSERT INTO room_players (player_id, room_id, name, solved, last_active_at)
-                VALUES (?, ?, ?, 0, ?)
+                INSERT INTO room_players (player_id, room_id, name, solved, solve_order, solved_at, last_active_at)
+                VALUES (?, ?, ?, 0, NULL, NULL, ?)
                 """,
                 (player_id, room_id, host_name, timestamp),
             )
@@ -232,8 +241,8 @@ class SQLiteRepository:
         with self.connection() as conn:
             conn.execute(
                 """
-                INSERT INTO room_players (player_id, room_id, name, solved, last_active_at)
-                VALUES (?, ?, ?, 0, ?)
+                INSERT INTO room_players (player_id, room_id, name, solved, solve_order, solved_at, last_active_at)
+                VALUES (?, ?, ?, 0, NULL, NULL, ?)
                 """,
                 (player_id, room_id, name, now),
             )
@@ -328,10 +337,29 @@ class SQLiteRepository:
                 """
                 UPDATE room_players
                 SET solved = CASE WHEN ? = 1 THEN 1 ELSE solved END,
+                    solve_order = CASE
+                        WHEN ? = 1 AND solved = 0 THEN COALESCE(
+                            (SELECT MAX(solve_order) FROM room_players WHERE room_id = ?),
+                            0
+                        ) + 1
+                        ELSE solve_order
+                    END,
+                    solved_at = CASE
+                        WHEN ? = 1 AND solved = 0 THEN ?
+                        ELSE solved_at
+                    END,
                     last_active_at = ?
                 WHERE player_id = ?
                 """,
-                (int(guess.correct), created_at.isoformat(), player_id),
+                (
+                    int(guess.correct),
+                    int(guess.correct),
+                    room_id,
+                    int(guess.correct),
+                    created_at.isoformat(),
+                    created_at.isoformat(),
+                    player_id,
+                ),
             )
         return created_at
 
@@ -343,6 +371,8 @@ class SQLiteRepository:
                     p.player_id,
                     p.name,
                     p.solved,
+                    p.solve_order,
+                    p.solved_at,
                     p.last_active_at,
                     COUNT(g.id) AS attempts,
                     MIN(g.rank_value) AS best_rank,
@@ -351,9 +381,10 @@ class SQLiteRepository:
                 LEFT JOIN room_guesses g
                   ON p.player_id = g.player_id AND p.room_id = g.room_id
                 WHERE p.room_id = ?
-                GROUP BY p.player_id, p.name, p.solved, p.last_active_at
+                GROUP BY p.player_id, p.name, p.solved, p.solve_order, p.solved_at, p.last_active_at
                 ORDER BY
                     p.solved DESC,
+                    CASE WHEN p.solve_order IS NULL THEN 999999 ELSE p.solve_order END ASC,
                     CASE WHEN MIN(g.rank_value) IS NULL THEN 999999 ELSE MIN(g.rank_value) END ASC,
                     MAX(g.similarity) DESC,
                     COUNT(g.id) ASC,
@@ -370,10 +401,33 @@ class SQLiteRepository:
                 best_rank=None if row["best_rank"] is None else int(row["best_rank"]),
                 best_similarity=None if row["best_similarity"] is None else float(row["best_similarity"]),
                 solved=bool(row["solved"]),
+                solve_order=None if row["solve_order"] is None else int(row["solve_order"]),
+                solved_at=None if row["solved_at"] is None else datetime.fromisoformat(str(row["solved_at"])),
                 last_active_at=datetime.fromisoformat(str(row["last_active_at"])),
             )
             for row in rows
         ]
+
+    def get_room_first_solver(self, room_id: str) -> RoomSolveLeader | None:
+        with self.connection() as conn:
+            row = conn.execute(
+                """
+                SELECT player_id, name, solve_order, solved_at
+                FROM room_players
+                WHERE room_id = ? AND solve_order IS NOT NULL
+                ORDER BY solve_order ASC
+                LIMIT 1
+                """,
+                (room_id,),
+            ).fetchone()
+        if row is None:
+            return None
+        return RoomSolveLeader(
+            player_id=str(row["player_id"]),
+            name=str(row["name"]),
+            solve_order=int(row["solve_order"]),
+            solved_at=datetime.fromisoformat(str(row["solved_at"])),
+        )
 
     def list_recent_room_guesses(self, room_id: str, limit: int = 20) -> list[RoomGuessView]:
         with self.connection() as conn:

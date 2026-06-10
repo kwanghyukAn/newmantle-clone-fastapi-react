@@ -74,6 +74,8 @@ class RoomMemberView(BaseModel):
     best_rank: int | None
     best_similarity: float | None
     solved: bool
+    solve_order: int | None
+    solved_at: datetime | None
     last_active_at: datetime
 
 
@@ -94,10 +96,18 @@ class RoomHintMetrics(BaseModel):
     top_100_cutoff_similarity: float
 
 
+class RoomSolveLeader(BaseModel):
+    player_id: str
+    name: str
+    solve_order: int
+    solved_at: datetime
+
+
 class RoomState(BaseModel):
     room_id: str
     answer_length: int
     created_at: datetime
     hint_metrics: RoomHintMetrics
+    first_solver: RoomSolveLeader | None
     members: list[RoomMemberView]
     recent_guesses: list[RoomGuessView]
