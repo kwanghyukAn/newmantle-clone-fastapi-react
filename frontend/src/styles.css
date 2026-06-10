@@ -42,85 +42,194 @@ button {
   background: #1f5135;
 }
 
-.excel-titlebar {
+.excel-windowbar {
   display: flex;
   justify-content: space-between;
   gap: 1rem;
-  align-items: flex-start;
-  padding: 0.85rem 1.15rem 0.7rem;
-  background: linear-gradient(180deg, #217346 0%, #1c653d 100%);
+  align-items: center;
+  padding: 0.4rem 0.85rem 0.35rem;
+  background: linear-gradient(180deg, #217346 0%, #1f6e43 100%);
   color: #f7fbf8;
 }
 
-.excel-brand {
+.windowbar-left,
+.windowbar-right {
   display: flex;
-  gap: 0.9rem;
-  align-items: flex-start;
+  gap: 0.7rem;
+  align-items: center;
 }
 
 .excel-badge {
-  width: 2.5rem;
-  height: 2.5rem;
+  width: 1.9rem;
+  height: 1.9rem;
   display: grid;
   place-items: center;
   border-radius: 0.2rem;
-  background: #185232;
+  background: #185231;
   border: 1px solid rgba(255, 255, 255, 0.2);
-  font-size: 1.2rem;
+  font-size: 1rem;
   font-weight: 700;
 }
 
-.brand-block {
-  max-width: 44rem;
+.quick-actions {
+  display: flex;
+  gap: 0.25rem;
 }
 
-.brand-block h1,
-.hero-card h2,
-.panel-header h3 {
-  margin: 0;
+.quick-actions button {
+  min-height: 1.8rem;
+  padding: 0.2rem 0.45rem;
+  border: 0;
+  background: rgba(255, 255, 255, 0.08);
+  color: #f7fbf8;
+  font-size: 0.74rem;
+  border-radius: 0.2rem;
+}
+
+.windowbar-title {
+  flex: 1;
+  text-align: center;
+  font-size: 0.88rem;
+  font-weight: 600;
   letter-spacing: -0.01em;
 }
 
-.topbar-controls {
+.windowbar-pill {
+  font-size: 0.72rem;
+  padding: 0.18rem 0.55rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.window-controls {
   display: flex;
-  gap: 1rem;
-  align-items: flex-end;
+  gap: 0.2rem;
 }
 
-.field-stack {
-  display: grid;
-  gap: 0.3rem;
-  font-size: 0.82rem;
+.window-controls span {
+  width: 2rem;
+  height: 1.2rem;
+  border-radius: 0.15rem;
+  background: rgba(255, 255, 255, 0.12);
 }
 
-.field-stack span {
-  color: rgba(247, 251, 248, 0.88);
-  font-weight: 600;
-}
-
-.excel-ribbon {
-  display: flex;
-  justify-content: space-between;
-  gap: 1rem;
-  flex-wrap: wrap;
-  padding: 0.75rem 1rem;
+.excel-ribbon-shell {
   background: #f3f5f7;
   border-bottom: 1px solid #cdd6dd;
 }
 
-.excel-toolbar {
+.excel-tabbar {
   display: flex;
-  gap: 0.8rem;
-  align-items: center;
-  flex-wrap: wrap;
+  align-items: end;
+  gap: 0.15rem;
+  padding: 0.35rem 0.8rem 0;
 }
 
-.ribbon-label {
-  font-size: 0.72rem;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: #5a6b7c;
+.excel-tab {
+  min-height: 2rem;
+  padding: 0.35rem 0.8rem;
+  border: 1px solid transparent;
+  border-bottom: 0;
+  background: transparent;
+  color: #314355;
+  font-weight: 500;
+}
+
+.excel-tab.active {
+  background: #ffffff;
+  border-color: #cdd6dd;
+  border-top-color: #217346;
+  color: #217346;
+}
+
+.excel-tab.file-tab {
+  color: #217346;
   font-weight: 700;
+}
+
+.excel-ribbon {
+  display: flex;
+  align-items: stretch;
+  gap: 1rem;
+  padding: 0.8rem 0.9rem 0.7rem;
+  background: #ffffff;
+}
+
+.ribbon-group {
+  display: flex;
+  position: relative;
+  padding-right: 0.95rem;
+  border-right: 1px solid #d7dfe6;
+}
+
+.ribbon-group:last-child {
+  border-right: 0;
+  padding-right: 0;
+}
+
+.ribbon-group-stack {
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 0.45rem;
+}
+
+.ribbon-group-fill {
+  flex: 1;
+}
+
+.ribbon-button-row {
+  display: flex;
+  gap: 0.4rem;
+  align-items: center;
+}
+
+.ribbon-tool {
+  min-height: 3rem;
+  min-width: 4.4rem;
+  padding: 0.45rem 0.7rem;
+  border: 1px solid #c8d1da;
+  background: linear-gradient(180deg, #ffffff 0%, #edf2f6 100%);
+  color: #2f4358;
+  font-weight: 600;
+}
+
+.ribbon-tool.is-strong {
+  min-height: 4.2rem;
+}
+
+.ribbon-group-label {
+  text-align: center;
+  font-size: 0.71rem;
+  color: #5d6d7d;
+}
+
+.ribbon-field {
+  display: grid;
+  gap: 0.3rem;
+  min-width: 12rem;
+}
+
+.ribbon-field span {
+  font-size: 0.76rem;
+  color: #55687b;
+  font-weight: 600;
+}
+
+.ribbon-status {
+  display: grid;
+  gap: 0.28rem;
+  padding: 0.3rem 0.2rem 0.15rem 0;
+}
+
+.ribbon-status-title {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #314355;
+}
+
+.ribbon-status-text {
+  font-size: 0.78rem;
+  color: #5d6d7d;
 }
 
 .formula-bar {
@@ -136,7 +245,7 @@ button {
 .name-box,
 .formula-label,
 .formula-input,
-.topbar-controls input,
+.ribbon-field input,
 .guess-form input,
 .inline-form input {
   min-height: 2.1rem;
@@ -352,6 +461,14 @@ button {
 .sheet-table-cell {
   padding: 0;
   background: #ffffff;
+}
+
+.hero-card,
+.panel,
+.brand-block h1,
+.panel-header h3 {
+  margin: 0;
+  letter-spacing: -0.01em;
 }
 
 .hero-card,
@@ -581,13 +698,18 @@ code {
 }
 
 @media (max-width: 960px) {
-  .excel-titlebar,
+  .excel-windowbar,
+  .excel-tabbar,
   .excel-ribbon,
   .hero-topline,
   .panel-header,
   .room-grid {
     display: grid;
     grid-template-columns: 1fr;
+  }
+
+  .windowbar-title {
+    text-align: left;
   }
 
   .formula-bar {

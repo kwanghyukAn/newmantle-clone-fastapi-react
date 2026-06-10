@@ -13,39 +13,92 @@ export default function App() {
 
   return (
     <div className="excel-shell">
-      <header className="excel-titlebar">
-        <div className="excel-brand">
+      <header className="excel-windowbar">
+        <div className="windowbar-left">
           <div className="excel-badge">X</div>
-          <div className="brand-block">
-            <p className="eyebrow">Spreadsheet Workspace</p>
-            <h1>뉴맨틀 운영 시트</h1>
-            <p className="meta-text">
-              fastText 한국어 임베딩 기반 추측 게임을 스프레드시트형 대시보드로 운영하는 화면입니다.
-            </p>
+          <div className="quick-actions">
+            <button type="button" aria-label="save">
+              저장
+            </button>
+            <button type="button" aria-label="undo">
+              실행취소
+            </button>
+            <button type="button" aria-label="redo">
+              다시실행
+            </button>
           </div>
         </div>
-        <div className="topbar-controls">
-          <label className="field-stack">
-            <span>참가자 이름</span>
-            <input value={playerName} onChange={(event) => setPlayerName(event.target.value)} placeholder="이름" />
-          </label>
+        <div className="windowbar-title">cap_prune - Excel</div>
+        <div className="windowbar-right">
+          <span className="windowbar-pill">자동 저장 꺼짐</span>
+          <div className="window-controls" aria-hidden="true">
+            <span />
+            <span />
+            <span />
+          </div>
         </div>
       </header>
-      <section className="excel-ribbon">
-        <div className="excel-toolbar">
-          <span className="ribbon-label">시트 보기</span>
-          <div className="tabset">
-            <button className={mode === "solo" ? "active" : ""} onClick={() => setMode("solo")}>
-              오늘의 게임
-            </button>
-            <button className={mode === "room" ? "active" : ""} onClick={() => setMode("room")}>
-              방 경쟁
-            </button>
-          </div>
+      <section className="excel-ribbon-shell">
+        <div className="excel-tabbar">
+          <button type="button" className="excel-tab file-tab">
+            파일
+          </button>
+          <button type="button" className="excel-tab active">
+            홈
+          </button>
+          <button type="button" className="excel-tab">
+            삽입
+          </button>
+          <button type="button" className="excel-tab">
+            페이지 레이아웃
+          </button>
+          <button type="button" className="excel-tab">
+            수식
+          </button>
+          <button type="button" className="excel-tab">
+            데이터
+          </button>
+          <button type="button" className="excel-tab">
+            검토
+          </button>
+          <button type="button" className="excel-tab">
+            보기
+          </button>
         </div>
-        <div className="excel-toolbar">
-          <span className="ribbon-label">배포 상태</span>
-          <p className="meta-text">정적 빌드 시 FastAPI가 현재 시트를 그대로 서빙합니다.</p>
+        <div className="excel-ribbon">
+          <div className="ribbon-group ribbon-group-stack">
+            <div className="ribbon-button-row">
+              <button type="button" className="ribbon-tool is-strong">
+                붙여넣기
+              </button>
+            </div>
+            <span className="ribbon-group-label">클립보드</span>
+          </div>
+          <div className="ribbon-group ribbon-group-stack">
+            <div className="tabset">
+              <button className={mode === "solo" ? "active" : ""} onClick={() => setMode("solo")}>
+                오늘의 게임
+              </button>
+              <button className={mode === "room" ? "active" : ""} onClick={() => setMode("room")}>
+                방 경쟁
+              </button>
+            </div>
+            <span className="ribbon-group-label">모드</span>
+          </div>
+          <div className="ribbon-group ribbon-group-stack">
+            <label className="ribbon-field">
+              <span>참가자 이름</span>
+              <input value={playerName} onChange={(event) => setPlayerName(event.target.value)} placeholder="이름" />
+            </label>
+            <span className="ribbon-group-label">세션</span>
+          </div>
+          <div className="ribbon-group ribbon-group-stack ribbon-group-fill">
+            <div className="ribbon-status">
+              <span className="ribbon-status-title">배포 상태</span>
+              <span className="ribbon-status-text">정적 빌드 시 FastAPI가 현재 시트를 직접 서빙합니다.</span>
+            </div>
+            <span className="ribbon-group-label">정보</span>
+          </div>
         </div>
       </section>
       <section className="formula-bar">
