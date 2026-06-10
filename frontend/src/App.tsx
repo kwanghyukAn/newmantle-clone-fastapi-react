@@ -13,10 +13,10 @@ export default function App() {
     <div className="app-shell">
       <header className="topbar">
         <div className="brand-block">
-          <p className="eyebrow">Semantic Guessing Game</p>
+          <p className="eyebrow">Internal Word Similarity Game</p>
           <h1>뉴맨틀 클론</h1>
           <p className="meta-text">
-            공식 fastText 한국어 임베딩을 기준으로 확장 가능한 구조로 만든 로컬 워크스페이스입니다.
+            공식 fastText 한국어 임베딩을 기준으로 운영 가능한 구조로 정리한 FastAPI + React 워크스페이스입니다.
           </p>
         </div>
         <div className="topbar-controls">

@@ -1,4 +1,5 @@
-const API_BASE = "http://localhost:8000";
+const API_BASE = import.meta.env.VITE_API_BASE ?? "";
+const WS_BASE = import.meta.env.VITE_WS_BASE ?? "";
 
 export type GuessResult = {
   word: string;
@@ -66,7 +67,12 @@ export type RoomState = {
 };
 
 export function roomWebSocketUrl(roomId: string) {
-  return `ws://localhost:8000/api/rooms/${roomId}/ws`;
+  if (WS_BASE) {
+    return `${WS_BASE}/api/rooms/${roomId}/ws`;
+  }
+
+  const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
+  return `${protocol}//${window.location.host}/api/rooms/${roomId}/ws`;
 }
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {

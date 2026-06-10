@@ -86,7 +86,7 @@ python3 backend/scripts/prepare_fasttext_ko.py \
 ```bash
 cd backend
 source .venv/bin/activate
-uvicorn app.main:app --reload
+uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
 ```
 
 기본 주소:
@@ -98,12 +98,17 @@ uvicorn app.main:app --reload
 ```bash
 cd frontend
 npm install
-npm run dev
+npm run dev -- --host 0.0.0.0 --port 5173
 ```
 
 기본 주소:
 
 - `http://127.0.0.1:5173`
+
+같은 네트워크의 다른 PC에서는 서버 PC IP로 접속합니다.
+
+- 예시 프런트: `http://서버IP:5173`
+- 예시 백엔드 헬스체크: `http://서버IP:8000/health`
 
 ## 데이터 관련 설명
 

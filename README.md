@@ -7,7 +7,7 @@ cd backend
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
-uvicorn app.main:app --reload
+uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
 ```
 
 ## Prepare real Korean embeddings
@@ -29,8 +29,17 @@ This downloads the official fastText Korean `cc.ko.300.vec.gz` archive, filters 
 ```bash
 cd frontend
 npm install
-npm run dev
+npm run dev -- --host 0.0.0.0 --port 5173
 ```
+
+## Access from another PC
+
+If the server PC IP is `192.168.0.10`, open:
+
+- Frontend: `http://192.168.0.10:5173`
+- Backend health: `http://192.168.0.10:8000/health`
+
+The frontend now uses relative `/api` requests with Vite proxy in dev mode, so same-server and same-network access avoids the old localhost CORS mismatch.
 
 ## Current status
 
