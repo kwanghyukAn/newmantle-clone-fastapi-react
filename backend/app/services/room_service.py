@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import UTC, datetime
+from datetime import datetime, timezone
 from threading import Lock
 from uuid import uuid4
 
@@ -23,7 +23,7 @@ class RoomService:
         player_id = uuid4().hex
         answer = self._engine.choose_room_answer(room_id)
         with self._lock:
-            self._repository.create_room(room_id, answer.word, datetime.now(UTC), player_id, host_name)
+            self._repository.create_room(room_id, answer.word, datetime.now(timezone.utc), player_id, host_name)
         return room_id, player_id
 
     def join_room(self, room_id: str, name: str) -> str:

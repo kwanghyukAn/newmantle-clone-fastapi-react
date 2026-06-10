@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import sqlite3
 from contextlib import contextmanager
-from datetime import UTC, date, datetime
+from datetime import date, datetime, timezone
 from pathlib import Path
 from typing import Iterator
 
@@ -213,7 +213,7 @@ class SQLiteRepository:
             )
 
     def create_room(self, room_id: str, answer_word: str, created_at: datetime, player_id: str, host_name: str) -> None:
-        timestamp = created_at.astimezone(UTC).isoformat()
+        timestamp = created_at.astimezone(timezone.utc).isoformat()
         with self.connection() as conn:
             conn.execute(
                 "INSERT INTO rooms (room_id, answer_word, created_at) VALUES (?, ?, ?)",
@@ -228,7 +228,7 @@ class SQLiteRepository:
             )
 
     def add_room_player(self, room_id: str, player_id: str, name: str) -> None:
-        now = datetime.now(UTC).isoformat()
+        now = datetime.now(timezone.utc).isoformat()
         with self.connection() as conn:
             conn.execute(
                 """
@@ -278,7 +278,7 @@ class SQLiteRepository:
         return None if row is None else str(row["name"])
 
     def save_room_guess(self, room_id: str, player_id: str, player_name: str, guess: GuessResult) -> datetime:
-        created_at = datetime.now(UTC)
+        created_at = datetime.now(timezone.utc)
         with self.connection() as conn:
             conn.execute(
                 """
