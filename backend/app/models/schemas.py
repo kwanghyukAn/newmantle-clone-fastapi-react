@@ -24,10 +24,22 @@ class HintResult(BaseModel):
     kind: Literal["nearby", "initial"]
 
 
+class RevealResult(BaseModel):
+    word: str
+    answer_length: int
+    tags: list[str]
+    description: str
+
+
 class DailyState(BaseModel):
     game_date: date
     guesses: list[GuessResult]
     completed: bool
+    revealed: bool
+    hint_count: int
+    initial_hint_used: bool
+    answer_length: int
+    reveal: RevealResult | None = None
 
 
 class RoomCreateRequest(BaseModel):

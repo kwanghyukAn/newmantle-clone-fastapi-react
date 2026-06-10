@@ -38,6 +38,7 @@ npm run dev
 - Official fastText Korean preparation pipeline included
 - Room create/join/guess/state flow implemented with SQLite persistence
 - Room live updates delivered over WebSocket
+- Daily hint / initial-hint / give-up / share-ready flow included
 
 ## Important limitation
 

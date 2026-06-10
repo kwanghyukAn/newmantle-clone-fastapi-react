@@ -12,6 +12,25 @@ export type DailyState = {
   game_date: string;
   guesses: GuessResult[];
   completed: boolean;
+  revealed: boolean;
+  hint_count: number;
+  initial_hint_used: boolean;
+  answer_length: number;
+  reveal: RevealResult | null;
+};
+
+export type RevealResult = {
+  word: string;
+  answer_length: number;
+  tags: string[];
+  description: string;
+};
+
+export type HintResult = {
+  word: string;
+  similarity: number;
+  rank: number;
+  kind: "nearby" | "initial";
 };
 
 export type RoomState = {
@@ -69,6 +88,24 @@ export const api = {
     return request<GuessResult>("/api/daily/guess", {
       method: "POST",
       body: JSON.stringify({ player_name: playerName, word }),
+    });
+  },
+  getHint(playerName: string) {
+    const query = new URLSearchParams({ player_name: playerName });
+    return request<HintResult>(`/api/daily/hint?${query.toString()}`, {
+      method: "POST",
+    });
+  },
+  getInitialHint(playerName: string) {
+    const query = new URLSearchParams({ player_name: playerName });
+    return request<HintResult>(`/api/daily/initial-hint?${query.toString()}`, {
+      method: "POST",
+    });
+  },
+  giveUp(playerName: string) {
+    const query = new URLSearchParams({ player_name: playerName });
+    return request<RevealResult>(`/api/daily/give-up?${query.toString()}`, {
+      method: "POST",
     });
   },
   createRoom(hostName: string) {

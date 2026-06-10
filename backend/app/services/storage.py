@@ -6,7 +6,7 @@ from datetime import UTC, date, datetime
 from pathlib import Path
 from typing import Iterator
 
-from app.models.schemas import GuessResult, RoomGuessView, RoomMemberView
+from app.models.schemas import GuessResult, RevealResult, RoomGuessView, RoomMemberView
 
 
 class SQLiteRepository:
@@ -37,6 +37,18 @@ class SQLiteRepository:
                     correct INTEGER NOT NULL,
                     attempt INTEGER NOT NULL,
                     UNIQUE(player_name, game_date, attempt)
+                );
+
+                CREATE TABLE IF NOT EXISTS daily_sessions (
+                    player_name TEXT NOT NULL,
+                    game_date TEXT NOT NULL,
+                    hint_count INTEGER NOT NULL DEFAULT 0,
+                    initial_hint_used INTEGER NOT NULL DEFAULT 0,
+                    revealed INTEGER NOT NULL DEFAULT 0,
+                    reveal_word TEXT,
+                    reveal_tags TEXT,
+                    reveal_description TEXT,
+                    PRIMARY KEY(player_name, game_date)
                 );
 
                 CREATE TABLE IF NOT EXISTS rooms (
@@ -85,9 +97,50 @@ class SQLiteRepository:
             ).fetchall()
         return [self._guess_from_row(row) for row in rows]
 
+    def get_daily_session_meta(self, player_name: str | None, game_date: date) -> dict[str, object]:
+        key = player_name or "anonymous"
+        with self.connection() as conn:
+            row = conn.execute(
+                """
+                SELECT hint_count, initial_hint_used, revealed, reveal_word, reveal_tags, reveal_description
+                FROM daily_sessions
+                WHERE player_name = ? AND game_date = ?
+                """,
+                (key, game_date.isoformat()),
+            ).fetchone()
+        if row is None:
+            return {
+                "hint_count": 0,
+                "initial_hint_used": False,
+                "revealed": False,
+                "reveal": None,
+            }
+        reveal = None
+        if row["revealed"] and row["reveal_word"]:
+            reveal = RevealResult(
+                word=str(row["reveal_word"]),
+                answer_length=len(str(row["reveal_word"])),
+                tags=json_load_list(str(row["reveal_tags"]) if row["reveal_tags"] else "[]"),
+                description=str(row["reveal_description"] or ""),
+            )
+        return {
+            "hint_count": int(row["hint_count"]),
+            "initial_hint_used": bool(row["initial_hint_used"]),
+            "revealed": bool(row["revealed"]),
+            "reveal": reveal,
+        }
+
     def save_daily_guess(self, player_name: str | None, game_date: date, guess: GuessResult) -> None:
         key = player_name or "anonymous"
         with self.connection() as conn:
+            conn.execute(
+                """
+                INSERT INTO daily_sessions (player_name, game_date)
+                VALUES (?, ?)
+                ON CONFLICT(player_name, game_date) DO NOTHING
+                """,
+                (key, game_date.isoformat()),
+            )
             conn.execute(
                 """
                 INSERT INTO daily_guesses (player_name, game_date, word, similarity, rank_value, correct, attempt)
@@ -101,6 +154,61 @@ class SQLiteRepository:
                     guess.rank,
                     int(guess.correct),
                     guess.attempt,
+                ),
+            )
+
+    def increment_daily_hint(self, player_name: str | None, game_date: date) -> None:
+        key = player_name or "anonymous"
+        with self.connection() as conn:
+            conn.execute(
+                """
+                INSERT INTO daily_sessions (player_name, game_date, hint_count)
+                VALUES (?, ?, 1)
+                ON CONFLICT(player_name, game_date)
+                DO UPDATE SET hint_count = hint_count + 1
+                """,
+                (key, game_date.isoformat()),
+            )
+
+    def mark_daily_initial_hint(self, player_name: str | None, game_date: date) -> None:
+        key = player_name or "anonymous"
+        with self.connection() as conn:
+            conn.execute(
+                """
+                INSERT INTO daily_sessions (player_name, game_date, initial_hint_used)
+                VALUES (?, ?, 1)
+                ON CONFLICT(player_name, game_date)
+                DO UPDATE SET initial_hint_used = 1
+                """,
+                (key, game_date.isoformat()),
+            )
+
+    def reveal_daily_answer(
+        self,
+        player_name: str | None,
+        game_date: date,
+        reveal: RevealResult,
+    ) -> None:
+        key = player_name or "anonymous"
+        with self.connection() as conn:
+            conn.execute(
+                """
+                INSERT INTO daily_sessions (
+                    player_name, game_date, revealed, reveal_word, reveal_tags, reveal_description
+                ) VALUES (?, ?, 1, ?, ?, ?)
+                ON CONFLICT(player_name, game_date)
+                DO UPDATE SET
+                    revealed = 1,
+                    reveal_word = excluded.reveal_word,
+                    reveal_tags = excluded.reveal_tags,
+                    reveal_description = excluded.reveal_description
+                """,
+                (
+                    key,
+                    game_date.isoformat(),
+                    reveal.word,
+                    json_dump_list(reveal.tags),
+                    reveal.description,
                 ),
             )
 
@@ -277,3 +385,16 @@ class SQLiteRepository:
             correct=bool(row["correct"]),
             attempt=int(row["attempt"]),
         )
+
+
+def json_dump_list(values: list[str]) -> str:
+    import json
+
+    return json.dumps(values, ensure_ascii=False)
+
+
+def json_load_list(raw: str) -> list[str]:
+    import json
+
+    loaded = json.loads(raw)
+    return [str(value) for value in loaded]

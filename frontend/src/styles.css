@@ -71,7 +71,8 @@ input {
 .tabset button,
 .room-actions button,
 .guess-form button,
-.inline-form button {
+.inline-form button,
+.secondary-button {
   border: 0;
   border-radius: 999px;
   padding: 0.8rem 1.1rem;
@@ -79,6 +80,13 @@ input {
   color: white;
   cursor: pointer;
   box-shadow: 0 0.6rem 1.2rem rgba(29, 53, 87, 0.16);
+}
+
+.secondary-button {
+  background: rgba(255, 255, 255, 0.92);
+  color: #1d3557;
+  border: 1px solid rgba(29, 53, 87, 0.14);
+  box-shadow: none;
 }
 
 .tabset button.active {
@@ -171,6 +179,12 @@ input {
   border: 1px dashed rgba(29, 53, 87, 0.16);
 }
 
+.action-row {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
 .guess-table {
   width: 100%;
   border-collapse: collapse;
@@ -247,7 +261,8 @@ input {
   .room-grid,
   .room-actions,
   .guess-form,
-  .inline-form {
+  .inline-form,
+  .action-row {
     grid-template-columns: 1fr;
     display: grid;
   }

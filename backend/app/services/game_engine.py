@@ -8,7 +8,7 @@ from datetime import date
 
 import numpy as np
 
-from app.models.schemas import GuessResult, HintResult
+from app.models.schemas import GuessResult, HintResult, RevealResult
 from app.services.embedding_store import EmbeddingBundle, VocabEntry, load_vocab
 
 
@@ -124,4 +124,18 @@ class GameEngine:
             similarity=100.0,
             rank=0,
             kind="initial",
+        )
+
+    def reveal(self, answer: VocabEntry) -> RevealResult:
+        tags = list(answer.tags) if answer.tags else ["일반명사"]
+        description = (
+            f"'{answer.word}'은(는) {', '.join(tags)} 범주의 한국어 일반명사입니다."
+            if tags
+            else f"'{answer.word}'은(는) 오늘의 정답 단어입니다."
+        )
+        return RevealResult(
+            word=answer.word,
+            answer_length=len(answer.word),
+            tags=tags,
+            description=description,
         )
