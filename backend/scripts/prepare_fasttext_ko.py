@@ -15,6 +15,12 @@ FASTTEXT_KO_VEC_URL = "https://dl.fbaipublicfiles.com/fasttext/vectors-crawl/cc.
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_CACHE_PATH = PROJECT_ROOT / "backend" / ".cache" / "cc.ko.300.vec.gz"
 DEFAULT_OUTPUT_DIR = PROJECT_ROOT / "backend" / "app" / "data"
+DEFAULT_MAX_VOCAB = 200000
+DEFAULT_MAX_ANSWER_VOCAB = 15000
+DEFAULT_MIN_WORD_LENGTH = 1
+DEFAULT_MAX_WORD_LENGTH = 12
+DEFAULT_MIN_ANSWER_LENGTH = 2
+DEFAULT_MAX_ANSWER_LENGTH = 6
 JOSA_ENDINGS = (
     "은",
     "는",
@@ -57,8 +63,20 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--max-vocab",
         type=int,
-        default=60000,
+        default=DEFAULT_MAX_VOCAB,
         help="Maximum number of noun-like words to retain.",
+    )
+    parser.add_argument(
+        "--min-word-length",
+        type=int,
+        default=DEFAULT_MIN_WORD_LENGTH,
+        help="Minimum Hangul word length allowed in the guess pool.",
+    )
+    parser.add_argument(
+        "--max-word-length",
+        type=int,
+        default=DEFAULT_MAX_WORD_LENGTH,
+        help="Maximum Hangul word length allowed in the guess pool.",
     )
     parser.add_argument(
         "--noun-lexicon",
@@ -73,8 +91,20 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--max-answer-vocab",
         type=int,
-        default=8000,
+        default=DEFAULT_MAX_ANSWER_VOCAB,
         help="Maximum number of answer candidates to retain from the filtered vocabulary.",
+    )
+    parser.add_argument(
+        "--min-answer-length",
+        type=int,
+        default=DEFAULT_MIN_ANSWER_LENGTH,
+        help="Minimum answer word length.",
+    )
+    parser.add_argument(
+        "--max-answer-length",
+        type=int,
+        default=DEFAULT_MAX_ANSWER_LENGTH,
+        help="Maximum answer word length.",
     )
     parser.add_argument(
         "--answer-whitelist",
@@ -93,20 +123,20 @@ def is_hangul_word(word: str) -> bool:
     return bool(re.fullmatch(r"[가-힣]+", word))
 
 
-def looks_like_noun(word: str) -> bool:
+def looks_like_noun(word: str, min_length: int, max_length: int) -> bool:
     if not is_hangul_word(word):
         return False
-    if len(word) < 2 or len(word) > 8:
+    if len(word) < min_length or len(word) > max_length:
         return False
     if any(word.endswith(ending) and len(word) > len(ending) + 1 for ending in JOSA_ENDINGS):
         return False
     return True
 
 
-def looks_like_answer_candidate(word: str) -> bool:
-    if not looks_like_noun(word):
+def looks_like_answer_candidate(word: str, min_word_length: int, max_word_length: int, min_answer_length: int, max_answer_length: int) -> bool:
+    if not looks_like_noun(word, min_word_length, max_word_length):
         return False
-    if len(word) < 2 or len(word) > 5:
+    if len(word) < min_answer_length or len(word) > max_answer_length:
         return False
     blocked_suffixes = ("하다", "되다", "같다", "스럽다", "적인")
     if word.endswith(blocked_suffixes):
@@ -195,8 +225,12 @@ def convert_vec_gz(
     source: Path,
     output_dir: Path,
     max_vocab: int,
+    min_word_length: int,
+    max_word_length: int,
     noun_lexicon: set[str],
     max_answer_vocab: int,
+    min_answer_length: int,
+    max_answer_length: int,
     answer_whitelist: list[str],
     answer_blacklist: set[str],
 ) -> None:
@@ -204,7 +238,17 @@ def convert_vec_gz(
     vectors: list[list[float]] = []
     seen: set[str] = set()
     answer_words: list[str] = []
-    filtered_answer_whitelist = [word for word in answer_whitelist if looks_like_answer_candidate(word)]
+    filtered_answer_whitelist = [
+        word
+        for word in answer_whitelist
+        if looks_like_answer_candidate(
+            word,
+            min_word_length=min_word_length,
+            max_word_length=max_word_length,
+            min_answer_length=min_answer_length,
+            max_answer_length=max_answer_length,
+        )
+    ]
 
     with gzip.open(source, "rt", encoding="utf-8", newline="\n", errors="ignore") as handle:
         header = handle.readline()
@@ -216,7 +260,7 @@ def convert_vec_gz(
             if len(pieces) < 11:
                 continue
             word = pieces[0]
-            if not looks_like_noun(word):
+            if not looks_like_noun(word, min_word_length, max_word_length):
                 continue
             if noun_lexicon and word not in noun_lexicon:
                 continue
@@ -232,7 +276,13 @@ def convert_vec_gz(
             vectors.append(vector)
             if (
                 len(answer_words) < max_answer_vocab
-                and looks_like_answer_candidate(word)
+                and looks_like_answer_candidate(
+                    word,
+                    min_word_length=min_word_length,
+                    max_word_length=max_word_length,
+                    min_answer_length=min_answer_length,
+                    max_answer_length=max_answer_length,
+                )
                 and word not in answer_blacklist
             ):
                 answer_words.append(word)
@@ -272,6 +322,10 @@ def convert_vec_gz(
                 "selected_answer_words": len(answer_words),
                 "dimension": len(vectors[0]) if vectors else 0,
                 "filter": "hangul noun-like heuristic",
+                "min_word_length": min_word_length,
+                "max_word_length": max_word_length,
+                "min_answer_length": min_answer_length,
+                "max_answer_length": max_answer_length,
                 "lexicon_intersection": bool(noun_lexicon),
                 "guess_pool_strategy": "lexicon-filtered" if noun_lexicon else "broad-hangul-noun-filter",
                 "answer_whitelist_applied": bool(filtered_answer_whitelist),
@@ -306,8 +360,12 @@ def main() -> None:
         cache_path,
         output_dir,
         args.max_vocab,
+        args.min_word_length,
+        args.max_word_length,
         noun_lexicon,
         args.max_answer_vocab,
+        args.min_answer_length,
+        args.max_answer_length,
         answer_whitelist,
         answer_blacklist,
     )

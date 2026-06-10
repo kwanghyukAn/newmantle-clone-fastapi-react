@@ -52,7 +52,7 @@ export function RoomBoard({ room, currentPlayerId }: Props) {
             <div className="sheet-row-cells sheet-title-row">
               <div className="panel-header panel-header-tight">
                 <h3>상위권 힌트</h3>
-                <span>정답 길이 {room.answer_length}자</span>
+                <span>유사도 컷라인</span>
               </div>
             </div>
           </div>
@@ -91,7 +91,7 @@ export function RoomBoard({ room, currentPlayerId }: Props) {
             <div className="sheet-row-cells sheet-title-row">
               <div className="panel-header panel-header-tight">
                 <h3>참가자 순위</h3>
-                <span>정답 길이 {room.answer_length}자</span>
+                <span>실시간 보드</span>
               </div>
             </div>
           </div>

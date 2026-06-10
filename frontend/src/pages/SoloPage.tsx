@@ -195,9 +195,7 @@ export function SoloPage({ playerName }: Props) {
               ) : state?.revealed && state.reveal ? (
                 <p className="success-text">정답은 {state.reveal.word}였습니다. {state.reveal.description}</p>
               ) : (
-                <p className="meta-text">
-                  정답은 {state?.answer_length ?? "-"}자 단어입니다. 가까운 단어를 찾으면 순위와 유사도로 방향이 잡힙니다.
-                </p>
+                <p className="meta-text">가까운 단어를 찾으면 순위와 유사도로 방향이 잡힙니다.</p>
               )}
               {hintMessage ? <p className="meta-text">{hintMessage}</p> : null}
               {shareMessage ? <p className="meta-text">{shareMessage}</p> : null}

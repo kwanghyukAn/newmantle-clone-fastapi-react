@@ -17,11 +17,14 @@ python3 -m venv backend/.venv
 source backend/.venv/bin/activate
 pip install -r backend/requirements.txt
 python3 backend/scripts/prepare_fasttext_ko.py \
+  --max-vocab 200000 \
   --answer-whitelist backend/app/data/answer_whitelist_seed.txt \
   --answer-blacklist backend/app/data/answer_blacklist_seed.txt
 ```
 
 This downloads the official fastText Korean `cc.ko.300.vec.gz` archive, filters noun-like Hangul words, and generates app-ready files in `backend/app/data/`.
+
+기본값도 넓혀 두었습니다. 이제 허용 추측 풀은 기본 `200,000`개까지 유지하고, 한 글자 명사도 포함할 수 있습니다.
 
 If the download was interrupted earlier, the script now auto-recovers from `416 Requested Range Not Satisfied` by resetting the stale cache and retrying.
 
