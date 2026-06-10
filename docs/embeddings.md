@@ -59,6 +59,8 @@ This will:
 3. optionally intersect with a noun lexicon
 4. write app-ready files into `backend/app/data/`
 
+If a previous download was interrupted, the preparer now checks the cached file size and automatically restarts the download when the server rejects the stored byte range with `416 Requested Range Not Satisfied`.
+
 Generated files:
 
 - `backend/app/data/fasttext_ko_words.json`

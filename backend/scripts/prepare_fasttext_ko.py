@@ -4,6 +4,7 @@ import argparse
 import gzip
 import json
 import re
+import urllib.error
 import urllib.request
 from pathlib import Path
 
@@ -127,17 +128,44 @@ def load_word_list(path: str) -> list[str]:
     ]
 
 
+def get_remote_file_size(url: str) -> int | None:
+    request = urllib.request.Request(url, method="HEAD")
+    with urllib.request.urlopen(request) as response:
+        header = response.headers.get("Content-Length")
+        return int(header) if header else None
+
+
 def download_with_resume(url: str, destination: Path) -> None:
     destination.parent.mkdir(parents=True, exist_ok=True)
     existing_size = destination.stat().st_size if destination.exists() else 0
+    remote_size = get_remote_file_size(url)
+
+    if remote_size is not None:
+        if existing_size == remote_size:
+            print(f"cached archive already complete at {destination}")
+            return
+        if existing_size > remote_size:
+            print(f"cached archive is larger than remote file, resetting {destination}")
+            destination.unlink(missing_ok=True)
+            existing_size = 0
+
     request = urllib.request.Request(url)
     if existing_size:
         request.add_header("Range", f"bytes={existing_size}-")
-    with urllib.request.urlopen(request) as response:
-        if response.status == 200 and existing_size:
-            destination.unlink()
-            existing_size = 0
-        mode = "ab" if existing_size else "wb"
+
+    try:
+        response = urllib.request.urlopen(request)
+    except urllib.error.HTTPError as error:
+        if error.code != 416:
+            raise
+        print(f"range request rejected for {destination}, restarting full download")
+        destination.unlink(missing_ok=True)
+        existing_size = 0
+        response = urllib.request.urlopen(urllib.request.Request(url))
+
+    with response:
+        resumable = existing_size and getattr(response, "status", None) == 206
+        mode = "ab" if resumable else "wb"
         with destination.open(mode) as handle:
             while True:
                 chunk = response.read(1024 * 1024)

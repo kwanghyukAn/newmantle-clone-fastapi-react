@@ -81,6 +81,8 @@ python3 backend/scripts/prepare_fasttext_ko.py \
 - `backend/app/data/fasttext_ko_answer_words.json`
 - `backend/app/data/fasttext_ko_metadata.json`
 
+이전에 다운로드가 중단됐던 환경에서는 `416 Requested Range Not Satisfied`가 날 수 있었는데, 현재 스크립트는 캐시 크기를 검사하고 필요하면 `backend/.cache/cc.ko.300.vec.gz`를 자동으로 다시 받아오도록 보강되어 있습니다.
+
 ### 3. 백엔드 실행
 
 ```bash

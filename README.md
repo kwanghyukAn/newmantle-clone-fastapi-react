@@ -24,6 +24,8 @@ python3 backend/scripts/prepare_fasttext_ko.py \
 
 This downloads the official fastText Korean `cc.ko.300.vec.gz` archive, filters noun-like Hangul words, and generates app-ready files in `backend/app/data/`.
 
+If the download was interrupted earlier, the script now auto-recovers from `416 Requested Range Not Satisfied` by resetting the stale cache and retrying.
+
 ## Run frontend
 
 ```bash
