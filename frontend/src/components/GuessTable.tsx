@@ -5,6 +5,16 @@ type Props = {
 };
 
 export function GuessTable({ guesses }: Props) {
+  const formatRank = (guess: GuessResult) => {
+    if (guess.correct) {
+      return "정답";
+    }
+    if (guess.rank >= 1000) {
+      return "1000위 이상";
+    }
+    return `${guess.rank}위`;
+  };
+
   return (
     <div className="sheet-block">
       <div className="sheet-block-columns">
@@ -43,7 +53,7 @@ export function GuessTable({ guesses }: Props) {
                   >
                     <td>{guess.attempt}</td>
                     <td className="guess-word">{guess.word}</td>
-                    <td>{guess.correct ? "정답" : `${guess.rank}위`}</td>
+                    <td>{formatRank(guess)}</td>
                     <td>{guess.similarity.toFixed(2)}</td>
                   </tr>
                 ))}

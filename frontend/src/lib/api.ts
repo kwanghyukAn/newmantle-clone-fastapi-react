@@ -45,6 +45,11 @@ export type RoomState = {
   room_id: string;
   answer_length: number;
   created_at: string;
+  hint_metrics: {
+    rank_1_similarity: number;
+    top_10_cutoff_similarity: number;
+    top_100_cutoff_similarity: number;
+  };
   members: Array<{
     player_id: string;
     name: string;

@@ -88,9 +88,16 @@ class RoomGuessView(BaseModel):
     created_at: datetime
 
 
+class RoomHintMetrics(BaseModel):
+    rank_1_similarity: float
+    top_10_cutoff_similarity: float
+    top_100_cutoff_similarity: float
+
+
 class RoomState(BaseModel):
     room_id: str
     answer_length: int
     created_at: datetime
+    hint_metrics: RoomHintMetrics
     members: list[RoomMemberView]
     recent_guesses: list[RoomGuessView]

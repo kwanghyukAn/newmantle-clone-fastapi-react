@@ -144,7 +144,7 @@ export function RoomPage({ playerName }: Props) {
                 <form className="inline-form" onSubmit={joinRoom}>
                   <input
                     value={roomIdInput}
-                    onChange={(event) => setRoomIdInput(event.target.value)}
+                    onChange={(event) => setRoomIdInput(event.target.value.toUpperCase())}
                     placeholder="방 코드"
                   />
                   <button type="submit" disabled={alreadyJoinedCurrentRoom}>
@@ -158,6 +158,11 @@ export function RoomPage({ playerName }: Props) {
             <div className="sheet-row-number">4</div>
             <div className="sheet-row-cells">
               {roomId ? <p className="meta-text">방 코드 `{roomId}` 를 공유해서 다른 사람을 입장시키면 됩니다.</p> : null}
+              {room ? (
+                <p className="meta-text">
+                  순위는 1000위 미만만 숫자로 표시합니다. 최근 추측 패널의 첫 줄은 현재 사용자 기준 최신 입력입니다.
+                </p>
+              ) : null}
               {roomId && playerId ? (
                 <form className="guess-form" onSubmit={submitGuess}>
                   <input
@@ -173,7 +178,7 @@ export function RoomPage({ playerName }: Props) {
           </div>
         </div>
       </div>
-      {room ? <RoomBoard room={room} /> : null}
+      {room ? <RoomBoard room={room} currentPlayerId={playerId} /> : null}
     </section>
   );
 }

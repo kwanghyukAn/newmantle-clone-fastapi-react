@@ -8,7 +8,7 @@ from datetime import date
 
 import numpy as np
 
-from app.models.schemas import GuessResult, HintResult, RevealResult
+from app.models.schemas import GuessResult, HintResult, RevealResult, RoomHintMetrics
 from app.services.embedding_store import EmbeddingBundle, VocabEntry, load_vocab
 
 
@@ -204,6 +204,20 @@ class GameEngine:
             similarity=100.0,
             rank=0,
             kind="initial",
+        )
+
+    def room_hint_metrics(self, answer: VocabEntry) -> RoomHintMetrics:
+        similarities, ranks = self._similarities_and_ranks(answer)
+
+        def similarity_for_rank(target_rank: int) -> float:
+            effective_rank = min(len(self._entries), max(1, target_rank))
+            target_index = int(np.where(ranks == effective_rank)[0][0])
+            return round(float(similarities[target_index]) * 100, 2)
+
+        return RoomHintMetrics(
+            rank_1_similarity=100.0,
+            top_10_cutoff_similarity=similarity_for_rank(10),
+            top_100_cutoff_similarity=similarity_for_rank(100),
         )
 
     def reveal(self, answer: VocabEntry) -> RevealResult:
