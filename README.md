@@ -27,6 +27,8 @@ If the download was interrupted earlier, the script now auto-recovers from `416 
 
 `--noun-lexicon` is optional. For real gameplay coverage, do not use the tiny seed lexicon as the default filter because it sharply reduces the allowed guess pool.
 
+If you pass a very small noun lexicon, the preparer now refuses by default. That is intentional: the allowed guess pool should stay broad, while the answer pool is curated separately.
+
 ## Run frontend
 
 ```bash

@@ -78,6 +78,7 @@ python3 backend/scripts/prepare_fasttext_ko.py \
 - 기본 운영 명령에서는 `noun_lexicon_seed.txt`를 넣지 않는 편이 맞습니다.
 - 그 파일은 너무 작아서 허용 추측 단어 풀이 지나치게 줄어듭니다.
 - `--noun-lexicon`은 더 큰 실제 명사 사전이 생겼을 때만 쓰는 옵션으로 보는 게 맞습니다.
+- 현재 스크립트는 작은 lexicon으로 전체 허용 단어 풀을 제한하려고 하면 기본적으로 중단합니다.
 
 생성 결과:
 

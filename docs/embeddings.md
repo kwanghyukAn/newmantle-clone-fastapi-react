@@ -81,6 +81,7 @@ python3 backend/scripts/prepare_fasttext_ko.py --noun-lexicon /path/to/full_kore
 
 The default is `60000` words. Lower values reduce disk/memory cost; higher values improve coverage.
 The answer pool defaults to `8000` words and is written separately from the allowed-guess pool.
+For gameplay quality, the allowed-guess pool should remain broad. A very small noun lexicon is appropriate only for curated answer selection, not for limiting every guess.
 
 ## Practical Note
 

@@ -66,6 +66,11 @@ def parse_args() -> argparse.Namespace:
         help="Optional newline-delimited noun lexicon file. When provided, only words in this lexicon are kept.",
     )
     parser.add_argument(
+        "--allow-small-lexicon",
+        action="store_true",
+        help="Allow a tiny noun lexicon to restrict the entire guess pool. Disabled by default because it usually harms gameplay.",
+    )
+    parser.add_argument(
         "--max-answer-vocab",
         type=int,
         default=8000,
@@ -268,6 +273,7 @@ def convert_vec_gz(
                 "dimension": len(vectors[0]) if vectors else 0,
                 "filter": "hangul noun-like heuristic",
                 "lexicon_intersection": bool(noun_lexicon),
+                "guess_pool_strategy": "lexicon-filtered" if noun_lexicon else "broad-hangul-noun-filter",
                 "answer_whitelist_applied": bool(filtered_answer_whitelist),
                 "answer_blacklist_applied": bool(answer_blacklist),
             },
@@ -288,6 +294,11 @@ def main() -> None:
     noun_lexicon = load_noun_lexicon(noun_lexicon_path)
     answer_whitelist = load_word_list(answer_whitelist_path)
     answer_blacklist = set(load_word_list(answer_blacklist_path))
+    if noun_lexicon and len(noun_lexicon) < 1000 and not args.allow_small_lexicon:
+        raise SystemExit(
+            "Refusing to use a tiny noun lexicon for the full guess pool. "
+            "Remove --noun-lexicon, or pass --allow-small-lexicon if you intentionally want a tiny allowed vocabulary."
+        )
     print(f"downloading official fastText Korean vectors to {cache_path}")
     download_with_resume(args.download_url, cache_path)
     print(f"converting to filtered app dataset in {output_dir}")
