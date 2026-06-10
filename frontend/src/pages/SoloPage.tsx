@@ -1,7 +1,7 @@
 import { FormEvent, useEffect, useState } from "react";
 
 import { GuessTable } from "../components/GuessTable";
-import { api, type DailyState, type HintResult, type RevealResult } from "../lib/api";
+import { api, type DailyState, type EmbeddingInfo, type HintResult, type RevealResult } from "../lib/api";
 
 type Props = {
   playerName: string;
@@ -13,11 +13,16 @@ export function SoloPage({ playerName }: Props) {
   const [error, setError] = useState<string | null>(null);
   const [hintMessage, setHintMessage] = useState<string | null>(null);
   const [shareMessage, setShareMessage] = useState<string | null>(null);
+  const [embeddingInfo, setEmbeddingInfo] = useState<EmbeddingInfo | null>(null);
   const latest = state?.guesses.at(-1) ?? null;
 
   useEffect(() => {
     api.getDailyState(playerName).then(setState).catch((reason: Error) => setError(reason.message));
   }, [playerName]);
+
+  useEffect(() => {
+    api.getEmbeddingInfo().then(setEmbeddingInfo).catch(() => undefined);
+  }, []);
 
   async function handleSubmit(event: FormEvent) {
     event.preventDefault();
@@ -169,6 +174,31 @@ export function SoloPage({ playerName }: Props) {
         </div>
       </div>
       <GuessTable guesses={state?.guesses ?? []} />
+      {embeddingInfo ? (
+        <div className="panel diagnostics-panel">
+          <div className="panel-header">
+            <h3>환경 진단</h3>
+            <span>{embeddingInfo.source}</span>
+          </div>
+          <div className="diagnostics-grid">
+            <div className="stat-chip">
+              <span>허용 단어</span>
+              <strong>{embeddingInfo.total_words.toLocaleString()}</strong>
+            </div>
+            <div className="stat-chip">
+              <span>정답 후보</span>
+              <strong>{embeddingInfo.answer_words.toLocaleString()}</strong>
+            </div>
+            <div className="stat-chip">
+              <span>사전 교차</span>
+              <strong>{String(embeddingInfo.metadata.lexicon_intersection ?? false)}</strong>
+            </div>
+          </div>
+          <p className="meta-text">
+            회사 환경에서 실제 fastText 데이터가 준비되면 이 값들이 seed 수준보다 훨씬 크게 보여야 합니다.
+          </p>
+        </div>
+      ) : null}
     </section>
   );
 }

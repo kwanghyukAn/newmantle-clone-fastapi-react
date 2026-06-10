@@ -33,6 +33,13 @@ export type HintResult = {
   kind: "nearby" | "initial";
 };
 
+export type EmbeddingInfo = {
+  source: string;
+  total_words: number;
+  answer_words: number;
+  metadata: Record<string, unknown>;
+};
+
 export type RoomState = {
   room_id: string;
   answer_length: number;
@@ -107,6 +114,9 @@ export const api = {
     return request<RevealResult>(`/api/daily/give-up?${query.toString()}`, {
       method: "POST",
     });
+  },
+  getEmbeddingInfo() {
+    return request<EmbeddingInfo>("/api/daily/embedding-info");
   },
   createRoom(hostName: string) {
     return request<{ room_id: string; player_id: string }>("/api/rooms", {

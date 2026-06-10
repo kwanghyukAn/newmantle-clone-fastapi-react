@@ -185,6 +185,16 @@ input {
   flex-wrap: wrap;
 }
 
+.diagnostics-panel {
+  background: rgba(248, 250, 252, 0.9);
+}
+
+.diagnostics-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
 .guess-table {
   width: 100%;
   border-collapse: collapse;
@@ -274,5 +284,9 @@ input {
 
   .guess-feed li {
     grid-template-columns: 1fr 1fr;
+  }
+
+  .diagnostics-grid {
+    grid-template-columns: 1fr;
   }
 }
