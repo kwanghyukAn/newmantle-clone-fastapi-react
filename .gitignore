@@ -1,4 +1,11 @@
 backend/.cache/
+backend/app/__pycache__/
+backend/app/api/__pycache__/
+backend/app/core/__pycache__/
+backend/app/models/__pycache__/
+backend/app/services/__pycache__/
+backend/scripts/__pycache__/
+*.pyc
 backend/app/data/fasttext_ko_words.json
 backend/app/data/fasttext_ko_vectors.npz
 backend/app/data/fasttext_ko_metadata.json
@@ -8,3 +15,4 @@ backend/newmantle.sqlite3
 newmantle.sqlite3
 frontend/node_modules/
 frontend/dist/
+frontend/*.tsbuildinfo
