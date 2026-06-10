@@ -12,8 +12,65 @@ from app.models.schemas import GuessResult, HintResult, RevealResult
 from app.services.embedding_store import EmbeddingBundle, VocabEntry, load_vocab
 
 
+JOSA_SUFFIXES = (
+    "에서는",
+    "으로는",
+    "에게서",
+    "까지는",
+    "부터는",
+    "이라고",
+    "에서",
+    "으로",
+    "에게",
+    "한테",
+    "까지",
+    "부터",
+    "보다",
+    "처럼",
+    "마다",
+    "이나",
+    "나",
+    "은",
+    "는",
+    "이",
+    "가",
+    "을",
+    "를",
+    "에",
+    "의",
+    "로",
+    "과",
+    "와",
+    "도",
+    "만",
+    "께",
+)
+
+
 def normalize_word(word: str) -> str:
-    return word.strip().lower()
+    return word.strip().lower().replace(" ", "")
+
+
+def word_variants(word: str) -> list[str]:
+    normalized = normalize_word(word)
+    variants: list[str] = []
+    seen: set[str] = set()
+
+    def add(candidate: str) -> None:
+        if candidate and candidate not in seen:
+            variants.append(candidate)
+            seen.add(candidate)
+
+    add(normalized)
+    add(normalized.rstrip(".,!?~"))
+
+    for suffix in JOSA_SUFFIXES:
+        if normalized.endswith(suffix):
+            stem = normalized[: -len(suffix)]
+            if len(stem) >= 2:
+                add(stem)
+
+    return variants
 
 
 def cosine_similarity(left: tuple[float, ...], right: tuple[float, ...]) -> float:
@@ -74,7 +131,22 @@ class GameEngine:
         return len(self._answer_entries)
 
     def find_entry(self, word: str) -> VocabEntry | None:
-        return self._entry_map.get(normalize_word(word))
+        for candidate in word_variants(word):
+            entry = self._entry_map.get(candidate)
+            if entry is not None:
+                return entry
+        return None
+
+    def unknown_word_message(self) -> str:
+        if self.source == "seed-json":
+            return (
+                "unknown-word: 현재 서버가 seed 사전으로 실행 중입니다. "
+                "실제 fastText 데이터를 준비하지 않으면 대부분의 일반 명사가 인식되지 않습니다."
+            )
+        return (
+            f"unknown-word: 허용 추측 단어 사전에 없는 입력입니다. "
+            f"현재 허용 단어 수는 {self.total_words:,}개입니다."
+        )
 
     def choose_daily_answer(self, game_date: date) -> VocabEntry:
         digest = hashlib.sha256(game_date.isoformat().encode("utf-8")).digest()
@@ -101,7 +173,7 @@ class GameEngine:
     def guess(self, answer: VocabEntry, word: str, attempt: int) -> GuessResult:
         entry = self.find_entry(word)
         if entry is None:
-            raise ValueError("unknown-word")
+            raise ValueError(self.unknown_word_message())
 
         similarities, ranks = self._similarities_and_ranks(answer)
         similarity = float(similarities[entry.index])
