@@ -1,4 +1,4 @@
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 
 import { RoomPage } from "./pages/RoomPage";
 import { SoloPage } from "./pages/SoloPage";
@@ -31,6 +31,19 @@ export default function App() {
       return next;
     });
   }
+
+  useEffect(() => {
+    const handleKeydown = (event: KeyboardEvent) => {
+      if (event.altKey && event.shiftKey && event.key.toLowerCase() === "a") {
+        event.preventDefault();
+        setAdminError(null);
+        setAdminPromptOpen(true);
+      }
+    };
+
+    window.addEventListener("keydown", handleKeydown);
+    return () => window.removeEventListener("keydown", handleKeydown);
+  }, []);
 
   async function handleAdminSubmit(event: FormEvent) {
     event.preventDefault();
@@ -210,7 +223,7 @@ export default function App() {
           </div>
           <div className="ribbon-group ribbon-group-stack">
             <div className="ribbon-button-row">
-              <button type="button" className="ribbon-tool" onClick={handleConditionalFormattingClick}>
+              <button type="button" className="ribbon-tool" onClick={handleConditionalFormattingClick} title="관리자 진입: 5회 클릭 또는 Alt+Shift+A">
                 <span className="ribbon-tool-icon ribbon-tool-icon-style-block" aria-hidden="true" />
                 조건부 서식
               </button>
