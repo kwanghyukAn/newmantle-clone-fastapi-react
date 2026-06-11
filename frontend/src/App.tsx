@@ -223,7 +223,7 @@ export default function App() {
           </div>
           <div className="ribbon-group ribbon-group-stack">
             <div className="ribbon-button-row">
-              <button type="button" className="ribbon-tool" onClick={handleConditionalFormattingClick} title="관리자 진입: 5회 클릭 또는 Alt+Shift+A">
+              <button type="button" className="ribbon-tool" onClick={handleConditionalFormattingClick} title="관리자 메뉴 열기">
                 <span className="ribbon-tool-icon ribbon-tool-icon-style-block" aria-hidden="true" />
                 조건부 서식
               </button>
@@ -391,7 +391,7 @@ export default function App() {
               <input
                 value={adminInput}
                 onChange={(event) => setAdminInput(event.target.value)}
-                placeholder="admin1234"
+                placeholder="비밀번호"
                 type="password"
                 autoFocus
               />
