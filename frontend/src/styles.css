@@ -1213,6 +1213,48 @@ input:focus-visible {
   gap: 0.85rem;
 }
 
+.room-board-layout {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(22rem, 0.82fr);
+  gap: 0.85rem;
+  align-items: start;
+}
+
+.room-board-left,
+.room-board-right {
+  display: grid;
+  gap: 0.85rem;
+  min-width: 0;
+}
+
+.room-board-right {
+  align-content: start;
+}
+
+.room-board-right .worksheet-region,
+.room-board-left .worksheet-region {
+  min-width: 0;
+}
+
+.room-board-right .guess-feed {
+  max-height: 18rem;
+  overflow: auto;
+}
+
+.room-board-right .guess-table {
+  table-layout: fixed;
+}
+
+.room-board-left .worksheet-room-members,
+.room-board-right .worksheet-room-hints,
+.room-board-right .worksheet-room-pinned,
+.room-board-right .worksheet-room-overflow,
+.room-board-right .worksheet-room-feed {
+  grid-column: auto;
+  grid-row: auto;
+}
+
 .guess-feed {
   list-style: none;
   padding: 0;
@@ -1290,6 +1332,10 @@ code {
   .panel-header,
   .room-grid {
     display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .room-board-layout {
     grid-template-columns: 1fr;
   }
 
