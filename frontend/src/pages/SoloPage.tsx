@@ -5,17 +5,29 @@ import { api, type DailyState, type EmbeddingInfo, type HintResult, type RevealR
 
 type Props = {
   playerName: string;
+  adminPassword: string | null;
 };
 
-export function SoloPage({ playerName }: Props) {
+export function SoloPage({ playerName, adminPassword }: Props) {
   const [state, setState] = useState<DailyState | null>(null);
   const [word, setWord] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [hintMessage, setHintMessage] = useState<string | null>(null);
   const [shareMessage, setShareMessage] = useState<string | null>(null);
   const [embeddingInfo, setEmbeddingInfo] = useState<EmbeddingInfo | null>(null);
+  const [adminReveal, setAdminReveal] = useState<RevealResult | null>(null);
   const latest = state?.guesses.at(-1) ?? null;
   const latestRank = latest ? (latest.correct ? "정답" : latest.rank >= 1000 ? "1000위 이상" : `${latest.rank}위`) : "-";
+  const bestGuess = state?.guesses.reduce<{
+    rank: number | null;
+    similarity: number | null;
+  }>(
+    (acc, guess) => ({
+      rank: acc.rank === null ? guess.rank : Math.min(acc.rank, guess.rank),
+      similarity: acc.similarity === null ? guess.similarity : Math.max(acc.similarity, guess.similarity),
+    }),
+    { rank: null, similarity: null },
+  ) ?? { rank: null, similarity: null };
 
   useEffect(() => {
     api.getDailyState(playerName).then(setState).catch((reason: Error) => setError(reason.message));
@@ -24,6 +36,17 @@ export function SoloPage({ playerName }: Props) {
   useEffect(() => {
     api.getEmbeddingInfo().then(setEmbeddingInfo).catch(() => undefined);
   }, []);
+
+  useEffect(() => {
+    if (!adminPassword) {
+      setAdminReveal(null);
+      return;
+    }
+    api
+      .getAdminDailyAnswer(adminPassword, state?.game_date?.toString())
+      .then(setAdminReveal)
+      .catch(() => setAdminReveal(null));
+  }, [adminPassword, state?.game_date]);
 
   async function handleSubmit(event: FormEvent) {
     event.preventDefault();
@@ -132,6 +155,8 @@ export function SoloPage({ playerName }: Props) {
           <div><span>시도</span><strong>{state?.guesses.length ?? 0}</strong></div>
           <div><span>힌트 사용</span><strong>{state?.hint_count ?? 0}</strong></div>
           <div><span>최근 순위</span><strong>{latestRank}</strong></div>
+          <div><span>최고 순위</span><strong>{bestGuess.rank === null ? "-" : bestGuess.rank >= 1000 ? "1000위 이상" : `${bestGuess.rank}위`}</strong></div>
+          <div><span>최고 유사도</span><strong>{bestGuess.similarity === null ? "-" : bestGuess.similarity.toFixed(2)}</strong></div>
         </div>
       </section>
 
@@ -190,6 +215,21 @@ export function SoloPage({ playerName }: Props) {
             <div><span>사전 교차</span><strong>{String(embeddingInfo.metadata.lexicon_intersection ?? false)}</strong></div>
           </div>
           <p className="meta-text">실제 fastText 데이터가 준비되면 이 값들이 훨씬 크게 보여야 합니다.</p>
+        </section>
+      ) : null}
+
+      {adminReveal ? (
+        <section className="worksheet-region worksheet-admin">
+          <div className="worksheet-region-head">
+            <h3>관리자 메뉴</h3>
+            <span>정답 보기</span>
+          </div>
+          <div className="worksheet-key-table worksheet-key-table-compact">
+            <div><span>정답</span><strong>{adminReveal.word}</strong></div>
+            <div><span>길이</span><strong>{adminReveal.answer_length}</strong></div>
+            <div><span>태그</span><strong>{adminReveal.tags.join(", ")}</strong></div>
+          </div>
+          <p className="meta-text">{adminReveal.description}</p>
         </section>
       ) : null}
     </section>

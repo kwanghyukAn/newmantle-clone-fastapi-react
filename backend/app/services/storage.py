@@ -437,11 +437,31 @@ class SQLiteRepository:
                 FROM room_guesses
                 WHERE room_id = ?
                 ORDER BY id DESC
-                LIMIT ?
                 """,
-                (room_id, limit),
+                (room_id,),
             ).fetchall()
 
+        unique_rows: dict[str, sqlite3.Row] = {}
+        for row in rows:
+            normalized = self._normalize_hint_word(str(row["word"]))
+            current = unique_rows.get(normalized)
+            if current is None or self._is_better_hint_row(row, current):
+                unique_rows[normalized] = row
+
+        pinned_rows = [
+            row
+            for row in unique_rows.values()
+            if bool(row["correct"]) or int(row["rank_value"]) < 1000
+        ]
+        overflow_rows = [
+            row
+            for row in unique_rows.values()
+            if not bool(row["correct"]) and int(row["rank_value"]) >= 1000
+        ]
+        pinned_rows.sort(key=self._hint_sort_key)
+        overflow_rows.sort(key=lambda row: (-float(row["similarity"]), int(row["rank_value"]), str(row["created_at"])))
+
+        ordered_rows = pinned_rows + overflow_rows[:limit]
         return [
             RoomGuessView(
                 player_id=str(row["player_id"]),
@@ -453,8 +473,33 @@ class SQLiteRepository:
                 attempt=int(row["attempt"]),
                 created_at=datetime.fromisoformat(str(row["created_at"])),
             )
-            for row in rows
+            for row in ordered_rows
         ]
+
+    @staticmethod
+    def _normalize_hint_word(word: str) -> str:
+        return word.strip().lower().replace(" ", "")
+
+    @staticmethod
+    def _is_better_hint_row(candidate: sqlite3.Row, current: sqlite3.Row) -> bool:
+        candidate_correct = bool(candidate["correct"])
+        current_correct = bool(current["correct"])
+        if candidate_correct != current_correct:
+            return candidate_correct
+        candidate_rank = int(candidate["rank_value"])
+        current_rank = int(current["rank_value"])
+        if candidate_rank != current_rank:
+            return candidate_rank < current_rank
+        candidate_similarity = float(candidate["similarity"])
+        current_similarity = float(current["similarity"])
+        if candidate_similarity != current_similarity:
+            return candidate_similarity > current_similarity
+        return str(candidate["created_at"]) > str(current["created_at"])
+
+    @staticmethod
+    def _hint_sort_key(row: sqlite3.Row) -> tuple[int, float, str]:
+        rank = int(row["rank_value"])
+        return (rank, -float(row["similarity"]), str(row["created_at"]))
 
     @staticmethod
     def _guess_from_row(row: sqlite3.Row) -> GuessResult:

@@ -44,12 +44,14 @@ button {
 
 .excel-windowbar {
   display: flex;
+  flex-wrap: nowrap;
   justify-content: space-between;
   gap: 1rem;
   align-items: center;
   padding: 0.4rem 0.85rem 0.35rem;
   background: linear-gradient(180deg, #217346 0%, #1f6e43 100%);
   color: #f7fbf8;
+  min-width: 0;
 }
 
 .windowbar-left,
@@ -57,6 +59,7 @@ button {
   display: flex;
   gap: 0.7rem;
   align-items: center;
+  flex: 0 0 auto;
 }
 
 .excel-badge {
@@ -96,6 +99,10 @@ button {
   font-size: 0.88rem;
   font-weight: 600;
   letter-spacing: -0.01em;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
 .windowbar-pill {
@@ -106,7 +113,8 @@ button {
 }
 
 .windowbar-search {
-  min-width: 18rem;
+  min-width: 14rem;
+  flex: 0 1 18rem;
   min-height: 1.8rem;
   display: flex;
   gap: 0.35rem;
@@ -154,12 +162,15 @@ button {
 
 .excel-tabbar {
   display: flex;
+  flex-wrap: nowrap;
   align-items: end;
   gap: 0.15rem;
   padding: 0.35rem 0.8rem 0;
+  overflow-x: auto;
 }
 
 .excel-tab {
+  flex: 0 0 auto;
   min-height: 2rem;
   padding: 0.35rem 0.8rem;
   border: 1px solid transparent;
@@ -183,11 +194,13 @@ button {
 
 .excel-ribbon {
   display: flex;
+  flex-wrap: nowrap;
   align-items: stretch;
   gap: 1rem;
   padding: 0.8rem 0.9rem 0.7rem;
   background: #ffffff;
   overflow-x: auto;
+  min-width: max-content;
 }
 
 .ribbon-group {
@@ -195,6 +208,7 @@ button {
   position: relative;
   padding-right: 0.95rem;
   border-right: 1px solid #d7dfe6;
+  flex: 0 0 auto;
 }
 
 .ribbon-group:last-child {
@@ -216,6 +230,7 @@ button {
   display: flex;
   gap: 0.4rem;
   align-items: center;
+  flex-wrap: nowrap;
 }
 
 .ribbon-combo-row {
@@ -691,6 +706,11 @@ button {
   grid-row: 13 / span 11;
 }
 
+.worksheet-grid-solo .worksheet-admin {
+  grid-column: 1 / span 12;
+  grid-row: 25 / span 4;
+}
+
 .worksheet-grid-room .worksheet-room-title {
   grid-column: 1 / span 7;
   grid-row: 2 / span 2;
@@ -716,14 +736,29 @@ button {
   grid-row: 10 / span 3;
 }
 
+.worksheet-grid-room .worksheet-room-pinned {
+  grid-column: 1 / span 12;
+  grid-row: 13 / span 6;
+}
+
+.worksheet-grid-room .worksheet-room-overflow {
+  grid-column: 1 / span 12;
+  grid-row: 19 / span 5;
+}
+
 .worksheet-grid-room .worksheet-room-members {
   grid-column: 1 / span 8;
-  grid-row: 14 / span 12;
+  grid-row: 24 / span 10;
 }
 
 .worksheet-grid-room .worksheet-room-feed {
   grid-column: 9 / span 7;
-  grid-row: 14 / span 12;
+  grid-row: 24 / span 10;
+}
+
+.worksheet-grid-room .worksheet-admin {
+  grid-column: 1 / span 12;
+  grid-row: 35 / span 4;
 }
 
 .active-cell-overlay {
@@ -1199,6 +1234,11 @@ input:focus-visible {
   background: rgba(255, 255, 255, 0.32);
 }
 
+.guess-feed-empty {
+  grid-template-columns: 1fr !important;
+  color: #6b7a89;
+}
+
 .ribbon-group-apps {
   min-width: 4rem;
   align-items: center;
@@ -1232,18 +1272,25 @@ code {
 }
 
 @media (max-width: 960px) {
-  .excel-windowbar,
+  .windowbar-title {
+    text-align: left;
+  }
+
+  .excel-windowbar {
+    gap: 0.5rem;
+  }
+
   .excel-tabbar,
-  .excel-ribbon,
+  .excel-ribbon {
+    padding-left: 0.55rem;
+    padding-right: 0.55rem;
+  }
+
   .hero-topline,
   .panel-header,
   .room-grid {
     display: grid;
     grid-template-columns: 1fr;
-  }
-
-  .windowbar-title {
-    text-align: left;
   }
 
   .sheet-bottom-chrome,
@@ -1282,4 +1329,62 @@ code {
   .sheet-title-row {
     display: grid;
   }
+}
+
+.admin-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  display: grid;
+  place-items: center;
+  background: rgba(15, 23, 42, 0.28);
+  backdrop-filter: blur(4px);
+  padding: 1rem;
+}
+
+.admin-modal {
+  width: min(28rem, 100%);
+  border: 1px solid #cdd6dd;
+  background: #ffffff;
+  box-shadow: 0 18px 50px rgba(15, 23, 42, 0.22);
+  padding: 1rem;
+  display: grid;
+  gap: 0.85rem;
+}
+
+.admin-modal-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: flex-start;
+}
+
+.admin-modal-head h3 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.admin-close {
+  min-height: 2rem;
+  padding: 0.2rem 0.65rem;
+  border: 1px solid #c6d0d9;
+  background: #f6f8fa;
+  color: #304355;
+}
+
+.admin-field {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.admin-field span {
+  font-size: 0.78rem;
+  color: #5d7083;
+  font-weight: 600;
+}
+
+.admin-actions {
+  display: flex;
+  gap: 0.55rem;
+  justify-content: flex-end;
 }

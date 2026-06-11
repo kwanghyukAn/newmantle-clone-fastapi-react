@@ -26,24 +26,8 @@ function formatSolveOrder(order: number | null) {
 }
 
 export function RoomBoard({ room, currentPlayerId }: Props) {
-  const myLatestGuess = currentPlayerId
-    ? room.recent_guesses.find((guess) => guess.player_id === currentPlayerId) ?? null
-    : null;
-  const rankedFeed = room.recent_guesses
-    .filter((guess) => guess !== myLatestGuess)
-    .slice()
-    .sort((left, right) => {
-      if (left.correct !== right.correct) {
-        return left.correct ? -1 : 1;
-      }
-      if (left.rank !== right.rank) {
-        return left.rank - right.rank;
-      }
-      if (left.similarity !== right.similarity) {
-        return right.similarity - left.similarity;
-      }
-      return right.created_at.localeCompare(left.created_at);
-    });
+  const pinnedGuesses = room.recent_guesses.filter((guess) => guess.correct || guess.rank < 1000);
+  const overflowGuesses = room.recent_guesses.filter((guess) => !guess.correct && guess.rank >= 1000);
 
   return (
     <>
@@ -64,6 +48,60 @@ export function RoomBoard({ room, currentPlayerId }: Props) {
         ) : (
           <p className="meta-text">아직 아무도 정답을 맞추지 못했습니다.</p>
         )}
+      </section>
+      <section className="worksheet-region worksheet-room-pinned">
+        <div className="worksheet-region-head">
+          <h3>1000위 미만 유지</h3>
+          <span>{pinnedGuesses.length}개 단어</span>
+        </div>
+        <table className="guess-table">
+          <thead>
+            <tr>
+              <th>단어</th>
+              <th>순위</th>
+              <th>유사도</th>
+              <th>입력자</th>
+            </tr>
+          </thead>
+          <tbody>
+            {pinnedGuesses.length > 0 ? (
+              pinnedGuesses.map((guess) => (
+                <tr key={`${guess.word}-${guess.player_id}`} className={guess.correct ? "guess-row guess-row-correct" : "guess-row"}>
+                  <td className="guess-word">{guess.word}</td>
+                  <td>{formatRank(guess.rank, guess.correct)}</td>
+                  <td>{guess.similarity.toFixed(2)}</td>
+                  <td>{guess.name}</td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan={4}>아직 1000위 안에 든 단어가 없습니다.</td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </section>
+      <section className="worksheet-region worksheet-room-overflow">
+        <div className="worksheet-region-head">
+          <h3>1000위 이상 힌트</h3>
+          <span>유사도순 {overflowGuesses.length > 24 ? "상위 24개" : `${overflowGuesses.length}개`}</span>
+        </div>
+        <ul className="guess-feed">
+          {overflowGuesses.length > 0 ? (
+            overflowGuesses.map((guess) => (
+              <li key={`${guess.word}-${guess.player_id}`}>
+                <strong className="guess-word">{guess.word}</strong>
+                <span>{formatRank(guess.rank, guess.correct)}</span>
+                <span>{guess.similarity.toFixed(2)}</span>
+                <span>{guess.name}</span>
+              </li>
+            ))
+          ) : (
+            <li className="guess-feed-empty">
+              <span>1000위 이상 힌트는 아직 없습니다.</span>
+            </li>
+          )}
+        </ul>
       </section>
       <section className="worksheet-region worksheet-room-members">
         <div className="worksheet-region-head">
@@ -97,27 +135,10 @@ export function RoomBoard({ room, currentPlayerId }: Props) {
       </section>
       <section className="worksheet-region worksheet-room-feed">
         <div className="worksheet-region-head">
-          <h3>최근 추측</h3>
-          <span>내 최신 추측 우선</span>
+          <h3>공유 힌트판</h3>
+          <span>중복 단어 자동 병합</span>
         </div>
-        <ul className="guess-feed">
-          {myLatestGuess ? (
-            <li key={`${myLatestGuess.player_id}-${myLatestGuess.created_at}`} className="guess-feed-highlight">
-              <strong>내 최근 추측</strong>
-              <span className="guess-word">{myLatestGuess.word}</span>
-              <span>{formatRank(myLatestGuess.rank, myLatestGuess.correct)}</span>
-              <span>{myLatestGuess.similarity.toFixed(2)}</span>
-            </li>
-          ) : null}
-          {rankedFeed.map((guess) => (
-            <li key={`${guess.player_id}-${guess.created_at}`}>
-              <strong>{guess.name}</strong>
-              <span className="guess-word">{guess.word}</span>
-              <span>{formatRank(guess.rank, guess.correct)}</span>
-              <span>{guess.similarity.toFixed(2)}</span>
-            </li>
-          ))}
-        </ul>
+        <p className="meta-text">같은 단어를 여러 번 넣어도 한 번만 유지됩니다. 1000위 미만은 고정 유지되고, 1000위 이상은 유사도순으로 제한 노출됩니다.</p>
       </section>
     </>
   );

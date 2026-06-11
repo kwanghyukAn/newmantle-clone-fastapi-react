@@ -67,6 +67,15 @@ class RoomGuessRequest(BaseModel):
     word: str
 
 
+class AdminPasswordRequest(BaseModel):
+    password: str = Field(min_length=1, max_length=64)
+    game_date: date | None = None
+
+
+class AdminVerifyResponse(BaseModel):
+    unlocked: bool
+
+
 class RoomMemberView(BaseModel):
     player_id: str
     name: str

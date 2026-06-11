@@ -27,6 +27,10 @@ export type RevealResult = {
   description: string;
 };
 
+export type AdminVerifyResponse = {
+  unlocked: boolean;
+};
+
 export type HintResult = {
   word: string;
   similarity: number;
@@ -147,6 +151,24 @@ export const api = {
   },
   getEmbeddingInfo() {
     return request<EmbeddingInfo>("/api/daily/embedding-info");
+  },
+  verifyAdmin(password: string) {
+    return request<AdminVerifyResponse>("/api/admin/verify", {
+      method: "POST",
+      body: JSON.stringify({ password }),
+    });
+  },
+  getAdminDailyAnswer(password: string, gameDate?: string) {
+    return request<RevealResult>("/api/admin/daily-answer", {
+      method: "POST",
+      body: JSON.stringify({ password, game_date: gameDate }),
+    });
+  },
+  getAdminRoomAnswer(roomId: string, password: string) {
+    return request<RevealResult>(`/api/admin/room-answer/${roomId}`, {
+      method: "POST",
+      body: JSON.stringify({ password }),
+    });
   },
   createRoom(hostName: string) {
     return request<{ room_id: string; player_id: string }>("/api/rooms", {

@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { FormEvent, useState } from "react";
 
 import { RoomPage } from "./pages/RoomPage";
 import { SoloPage } from "./pages/SoloPage";
+import { api } from "./lib/api";
 
 type Mode = "solo" | "room";
 
@@ -9,9 +10,44 @@ export default function App() {
   const [mode, setMode] = useState<Mode>("solo");
   const [playerName, setPlayerName] = useState("플레이어");
   const [zoom, setZoom] = useState(100);
+  const [, setAdminClickCount] = useState(0);
+  const [adminPromptOpen, setAdminPromptOpen] = useState(false);
+  const [adminInput, setAdminInput] = useState("");
+  const [adminPassword, setAdminPassword] = useState<string | null>(null);
+  const [adminError, setAdminError] = useState<string | null>(null);
+  const [adminStatus, setAdminStatus] = useState<string | null>(null);
   const columns = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P"];
   const rowNumbers = Array.from({ length: 34 }, (_, index) => index + 1);
   const activeCell = mode === "solo" ? "B2" : "D4";
+
+  function handleConditionalFormattingClick() {
+    setAdminClickCount((current) => {
+      const next = current + 1;
+      if (next >= 5) {
+        setAdminError(null);
+        setAdminPromptOpen(true);
+        return 0;
+      }
+      return next;
+    });
+  }
+
+  async function handleAdminSubmit(event: FormEvent) {
+    event.preventDefault();
+    setAdminError(null);
+    try {
+      const result = await api.verifyAdmin(adminInput.trim());
+      if (result.unlocked) {
+        setAdminPassword(adminInput.trim());
+        setAdminStatus("관리자 모드가 활성화되었습니다.");
+        setAdminPromptOpen(false);
+        setAdminInput("");
+        setAdminClickCount(0);
+      }
+    } catch (reason) {
+      setAdminError(reason instanceof Error ? reason.message : "admin verification failed");
+    }
+  }
 
   return (
     <div className="excel-shell">
@@ -163,10 +199,10 @@ export default function App() {
           </div>
           <div className="ribbon-group ribbon-group-stack">
             <div className="tabset">
-              <button className={mode === "solo" ? "active" : ""} onClick={() => setMode("solo")}>
+              <button type="button" className={mode === "solo" ? "active" : ""} onClick={() => setMode("solo")}>
                 오늘의 게임
               </button>
-              <button className={mode === "room" ? "active" : ""} onClick={() => setMode("room")}>
+              <button type="button" className={mode === "room" ? "active" : ""} onClick={() => setMode("room")}>
                 방 경쟁
               </button>
             </div>
@@ -174,7 +210,7 @@ export default function App() {
           </div>
           <div className="ribbon-group ribbon-group-stack">
             <div className="ribbon-button-row">
-              <button type="button" className="ribbon-tool">
+              <button type="button" className="ribbon-tool" onClick={handleConditionalFormattingClick}>
                 <span className="ribbon-tool-icon ribbon-tool-icon-style-block" aria-hidden="true" />
                 조건부 서식
               </button>
@@ -269,7 +305,11 @@ export default function App() {
             <div className="sheet-surface">
               <div className={`active-cell-overlay ${mode === "solo" ? "cell-b2" : "cell-d4"}`} aria-hidden="true" />
               <div className="content">
-                {mode === "solo" ? <SoloPage playerName={playerName} /> : <RoomPage playerName={playerName} />}
+                {mode === "solo" ? (
+                  <SoloPage playerName={playerName} adminPassword={adminPassword} />
+                ) : (
+                  <RoomPage playerName={playerName} adminPassword={adminPassword} />
+                )}
               </div>
             </div>
           </div>
@@ -284,10 +324,10 @@ export default function App() {
             </button>
           </div>
           <div className="sheet-tabs">
-            <button className={`sheet-tab ${mode === "solo" ? "active" : ""}`} onClick={() => setMode("solo")}>
+            <button type="button" className={`sheet-tab ${mode === "solo" ? "active" : ""}`} onClick={() => setMode("solo")}>
               Daily
             </button>
-            <button className={`sheet-tab ${mode === "room" ? "active" : ""}`} onClick={() => setMode("room")}>
+            <button type="button" className={`sheet-tab ${mode === "room" ? "active" : ""}`} onClick={() => setMode("room")}>
               Rooms
             </button>
           </div>
@@ -301,6 +341,7 @@ export default function App() {
           <span className="status-pill">준비</span>
           <span className="status-text">cap_prune</span>
           <span className="status-text">{mode === "solo" ? "오늘의 게임" : "방 경쟁"}</span>
+          {adminStatus ? <span className="status-text">{adminStatus}</span> : null}
         </div>
         <div className="statusbar-right">
           <div className="view-controls" aria-hidden="true">
@@ -320,6 +361,38 @@ export default function App() {
           </div>
         </div>
       </footer>
+      {adminPromptOpen ? (
+        <div className="admin-overlay" role="dialog" aria-modal="true">
+          <form className="admin-modal" onSubmit={handleAdminSubmit}>
+            <div className="admin-modal-head">
+              <div>
+                <p className="eyebrow">Admin</p>
+                <h3>비밀번호를 입력하세요</h3>
+              </div>
+              <button type="button" className="admin-close" onClick={() => setAdminPromptOpen(false)}>
+                닫기
+              </button>
+            </div>
+            <label className="admin-field">
+              <span>비밀번호</span>
+              <input
+                value={adminInput}
+                onChange={(event) => setAdminInput(event.target.value)}
+                placeholder="admin1234"
+                type="password"
+                autoFocus
+              />
+            </label>
+            {adminError ? <p className="error-text">{adminError}</p> : null}
+            <div className="admin-actions">
+              <button type="submit">확인</button>
+              <button type="button" className="secondary-button" onClick={() => setAdminPromptOpen(false)}>
+                취소
+              </button>
+            </div>
+          </form>
+        </div>
+      ) : null}
     </div>
   );
 }

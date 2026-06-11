@@ -8,6 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.routes_game import repository as daily_repository
 from app.api.routes_game import router as daily_router
+from app.api.routes_admin import router as admin_router
 from app.api.routes_rooms import repository as room_repository
 from app.api.routes_rooms import router as rooms_router
 
@@ -30,6 +31,7 @@ app.add_middleware(
 )
 
 app.include_router(daily_router)
+app.include_router(admin_router)
 app.include_router(rooms_router)
 
 

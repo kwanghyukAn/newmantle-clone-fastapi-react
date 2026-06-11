@@ -5,15 +5,17 @@ import { api, roomWebSocketUrl, type RoomState } from "../lib/api";
 
 type Props = {
   playerName: string;
+  adminPassword: string | null;
 };
 
-export function RoomPage({ playerName }: Props) {
+export function RoomPage({ playerName, adminPassword }: Props) {
   const [roomIdInput, setRoomIdInput] = useState("");
   const [roomId, setRoomId] = useState<string | null>(null);
   const [playerId, setPlayerId] = useState<string | null>(null);
   const [room, setRoom] = useState<RoomState | null>(null);
   const [word, setWord] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [adminReveal, setAdminReveal] = useState<{ word: string; answer_length: number; tags: string[]; description: string } | null>(null);
   const normalizedRoomIdInput = roomIdInput.toUpperCase();
   const alreadyJoinedCurrentRoom = Boolean(roomId && playerId && normalizedRoomIdInput === roomId);
 
@@ -55,6 +57,14 @@ export function RoomPage({ playerName }: Props) {
       window.clearInterval(timer);
     };
   }, [roomId]);
+
+  useEffect(() => {
+    if (!adminPassword || !roomId) {
+      setAdminReveal(null);
+      return;
+    }
+    api.getAdminRoomAnswer(roomId, adminPassword).then(setAdminReveal).catch(() => setAdminReveal(null));
+  }, [adminPassword, roomId]);
 
   async function createRoom() {
     setError(null);
@@ -136,7 +146,7 @@ export function RoomPage({ playerName }: Props) {
         {roomId ? <p className="meta-text">방 코드 `{roomId}` 를 공유해서 다른 사람을 입장시키면 됩니다.</p> : null}
         {room ? (
           <p className="meta-text">
-            순위는 1000위 미만만 숫자로 표시합니다. 최근 추측 패널의 첫 줄은 현재 사용자 기준 최신 입력입니다.
+            순위는 1000위 미만만 숫자로 표시합니다. 상위 1000위 단어는 고정 유지되고, 1000위 이상은 유사도순으로 정리됩니다.
           </p>
         ) : null}
         {roomId && playerId ? (
@@ -147,6 +157,21 @@ export function RoomPage({ playerName }: Props) {
         ) : null}
         {error ? <p className="error-text">{error}</p> : null}
       </section>
+
+      {adminReveal ? (
+        <section className="worksheet-region worksheet-admin">
+          <div className="worksheet-region-head">
+            <h3>관리자 메뉴</h3>
+            <span>방 정답 보기</span>
+          </div>
+          <div className="worksheet-key-table worksheet-key-table-compact">
+            <div><span>정답</span><strong>{adminReveal.word}</strong></div>
+            <div><span>길이</span><strong>{adminReveal.answer_length}</strong></div>
+            <div><span>태그</span><strong>{adminReveal.tags.join(", ")}</strong></div>
+          </div>
+          <p className="meta-text">{adminReveal.description}</p>
+        </section>
+      ) : null}
 
       {room ? <RoomBoard room={room} currentPlayerId={playerId} /> : null}
     </section>
