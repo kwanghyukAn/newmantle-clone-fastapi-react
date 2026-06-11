@@ -26,7 +26,7 @@ function formatSolveOrder(order: number | null) {
 }
 
 export function RoomBoard({ room, currentPlayerId }: Props) {
-  const pinnedGuesses = room.recent_guesses.filter((guess) => guess.correct || guess.rank < 1000);
+  const pinnedGuesses = room.recent_guesses.filter((guess) => !guess.correct && guess.rank < 1000);
   const overflowGuesses = room.recent_guesses.filter((guess) => !guess.correct && guess.rank >= 1000);
 
   return (
@@ -66,9 +66,9 @@ export function RoomBoard({ room, currentPlayerId }: Props) {
           <tbody>
             {pinnedGuesses.length > 0 ? (
               pinnedGuesses.map((guess) => (
-                <tr key={`${guess.word}-${guess.player_id}`} className={guess.correct ? "guess-row guess-row-correct" : "guess-row"}>
+                <tr key={`${guess.word}-${guess.player_id}`} className="guess-row">
                   <td className="guess-word">{guess.word}</td>
-                  <td>{formatRank(guess.rank, guess.correct)}</td>
+                  <td>{formatRank(guess.rank, false)}</td>
                   <td>{guess.similarity.toFixed(2)}</td>
                   <td>{guess.name}</td>
                 </tr>
@@ -138,7 +138,7 @@ export function RoomBoard({ room, currentPlayerId }: Props) {
           <h3>공유 힌트판</h3>
           <span>중복 단어 자동 병합</span>
         </div>
-        <p className="meta-text">같은 단어를 여러 번 넣어도 한 번만 유지됩니다. 1000위 미만은 고정 유지되고, 1000위 이상은 유사도순으로 제한 노출됩니다.</p>
+        <p className="meta-text">같은 단어를 여러 번 넣어도 한 번만 유지됩니다. 정답 단어는 기록에 표시하지 않고, 상위 추측만 공유합니다.</p>
       </section>
     </>
   );

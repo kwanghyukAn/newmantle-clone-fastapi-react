@@ -451,7 +451,7 @@ class SQLiteRepository:
         pinned_rows = [
             row
             for row in unique_rows.values()
-            if bool(row["correct"]) or int(row["rank_value"]) < 1000
+            if not bool(row["correct"]) and int(row["rank_value"]) < 1000
         ]
         overflow_rows = [
             row
